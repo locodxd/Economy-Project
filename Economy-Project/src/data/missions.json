@@ -1,0 +1,74 @@
+{
+  "missions": [
+    {
+      "id": 1,
+      "name": "Collect 100 coins",
+      "description": "Gather 100 coins from various sources.",
+      "reward": 50,
+      "completed": false
+    },
+    {
+      "id": 2,
+      "name": "Help an NPC",
+      "description": "Assist a non-player character with their task.",
+      "reward": 75,
+      "completed": false
+    },
+    {
+      "id": 3,
+      "name": "Win a game of chance",
+      "description": "Participate in a gambling game and win.",
+      "reward": 100,
+      "completed": false
+    },
+    {
+      "id": 4,
+      "name": "Deliver a package",
+      "description": "Deliver a package to a specified location.",
+      "reward": 60,
+      "completed": false
+    },
+    {
+      "id": 5,
+      "name": "Find a lost item",
+      "description": "Search for and return a lost item to its owner.",
+      "reward": 80,
+      "completed": false
+    },
+    {
+      "id": 6,
+      "name": "Complete a daily task",
+      "description": "Finish a daily task assigned to you.",
+      "reward": 40,
+      "completed": false
+    },
+    {
+      "id": 7,
+      "name": "Participate in a community event",
+      "description": "Join a community event and contribute.",
+      "reward": 90,
+      "completed": false
+    },
+    {
+      "id": 8,
+      "name": "Trade with another player",
+      "description": "Engage in a trade with another player.",
+      "reward": 70,
+      "completed": false
+    },
+    {
+      "id": 9,
+      "name": "Explora una nueva area",
+      "description": "Visit and explore a new area in the game.",
+      "reward": 50,
+      "completed": false
+    },
+    {
+      "id": 10,
+      "name": "Achieve a streak",
+      "description": "Complete missions for 5 consecutive days.",
+      "reward": 150,
+      "completed": false
+    }
+  ]
+}

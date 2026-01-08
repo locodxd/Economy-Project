@@ -1,0 +1,10 @@
+discord.py
+pygame
+aiohttp
+requests
+python-dotenv
+pytest
+pytest-asyncio
+Pillow
+sqlalchemy
+tenorpy

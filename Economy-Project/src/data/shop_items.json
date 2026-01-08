@@ -1,0 +1,64 @@
+{
+  "items": [
+    {
+      "name": "Health Potion",
+      "description": "Restores 50 health points.",
+      "price": 100,
+      "type": "potion"
+    },
+    {
+      "name": "Mana Potion",
+      "description": "Restores 50 mana points.",
+      "price": 150,
+      "type": "potion"
+    },
+    {
+      "name": "Sword",
+      "description": "A basic sword for combat.",
+      "price": 300,
+      "type": "weapon"
+    },
+    {
+      "name": "Shield",
+      "description": "Provides protection against attacks.",
+      "price": 250,
+      "type": "armor"
+    },
+    {
+      "name": "Gold Coin",
+      "description": "A shiny gold coin.",
+      "price": 10,
+      "type": "currency"
+    },
+    {
+      "name": "Silver Coin",
+      "description": "A shiny silver coin.",
+      "price": 5,
+      "type": "currency"
+    },
+    {
+      "name": "Magic Wand",
+      "description": "A wand that casts spells.",
+      "price": 500,
+      "type": "weapon"
+    },
+    {
+      "name": "Leather Armor",
+      "description": "Basic armor made of leather.",
+      "price": 200,
+      "type": "armor"
+    },
+    {
+      "name": "Healing Herb",
+      "description": "A herb that heals minor wounds.",
+      "price": 50,
+      "type": "herb"
+    },
+    {
+      "name": "Treasure Map",
+      "description": "Leads to hidden treasures.",
+      "price": 300,
+      "type": "map"
+    }
+  ]
+}

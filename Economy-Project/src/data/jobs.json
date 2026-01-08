@@ -1,0 +1,302 @@
+[
+    {
+        "name": "tester de videojuegos 🎮",
+        "min": 200,
+        "max": 500,
+        "tier_bonus": true
+    },
+    {
+        "name": "repartidor de pizzas 🍕",
+        "min": 180,
+        "max": 450,
+        "tier_bonus": true
+    },
+    {
+        "name": "traductor freelance 📝",
+        "min": 250,
+        "max": 600,
+        "tier_bonus": true
+    },
+    {
+        "name": "limpiador de ventanas 🪟",
+        "min": 150,
+        "max": 400,
+        "tier_bonus": false
+    },
+    {
+        "name": "vendedor de libros usados 📚",
+        "min": 170,
+        "max": 420,
+        "tier_bonus": false
+    },
+    {
+        "name": "profesor particular 👨‍🏫",
+        "min": 300,
+        "max": 700,
+        "tier_bonus": true
+    },
+    {
+        "name": "DJ en fiestas 🎧",
+        "min": 280,
+        "max": 650,
+        "tier_bonus": true
+    },
+    {
+        "name": "artista callejero 🎨",
+        "min": 190,
+        "max": 480,
+        "tier_bonus": true
+    },
+    {
+        "name": "técnico de computadoras 💻",
+        "min": 320,
+        "max": 750,
+        "tier_bonus": true
+    },
+    {
+        "name": "paseador de perros 🐕",
+        "min": 140,
+        "max": 380,
+        "tier_bonus": false
+    },
+    {
+        "name": "bartender 🍸",
+        "min": 220,
+        "max": 550,
+        "tier_bonus": true
+    },
+    {
+        "name": "operador de call center ☎️",
+        "min": 160,
+        "max": 400,
+        "tier_bonus": false
+    },
+    {
+        "name": "fotógrafo de eventos 📸",
+        "min": 290,
+        "max": 680,
+        "tier_bonus": true
+    },
+    {
+        "name": "streamer por un día 📹",
+        "min": 200,
+        "max": 500,
+        "tier_bonus": true
+    },
+    {
+        "name": "guardia de seguridad 🛡️",
+        "min": 180,
+        "max": 450,
+        "tier_bonus": false
+    },
+    {
+        "name": "jardinero 🌱",
+        "min": 150,
+        "max": 390,
+        "tier_bonus": false
+    },
+    {
+        "name": "electricista de emergencia ⚡",
+        "min": 310,
+        "max": 720,
+        "tier_bonus": true
+    },
+    {
+        "name": "plomero a domicilio 🔧",
+        "min": 300,
+        "max": 700,
+        "tier_bonus": true
+    },
+    {
+        "name": "chef privado 👨‍🍳",
+        "min": 350,
+        "max": 800,
+        "tier_bonus": true
+    },
+    {
+        "name": "chofer de Uber 🚗",
+        "min": 210,
+        "max": 520,
+        "tier_bonus": false
+    },
+    {
+        "name": "mesero en restaurante 🍽️",
+        "min": 170,
+        "max": 430,
+        "tier_bonus": false
+    },
+    {
+        "name": "editor de videos ✂️",
+        "min": 270,
+        "max": 630,
+        "tier_bonus": true
+    },
+    {
+        "name": "diseñador gráfico 🖌️",
+        "min": 280,
+        "max": 650,
+        "tier_bonus": true
+    },
+    {
+        "name": "community manager 📱",
+        "min": 240,
+        "max": 580,
+        "tier_bonus": true
+    },
+    {
+        "name": "modelo freelance 📷",
+        "min": 260,
+        "max": 610,
+        "tier_bonus": true
+    },
+    {
+        "name": "mecánico de autos 🔩",
+        "min": 290,
+        "max": 680,
+        "tier_bonus": true
+    },
+    {
+        "name": "entrenador personal 💪",
+        "min": 270,
+        "max": 640,
+        "tier_bonus": true
+    },
+    {
+        "name": "tatuador temporal 🎨",
+        "min": 250,
+        "max": 600,
+        "tier_bonus": true
+    },
+    {
+        "name": "barbero/peluquero ✂️",
+        "min": 200,
+        "max": 500,
+        "tier_bonus": false
+    },
+    {
+        "name": "vendedor ambulante 🛒",
+        "min": 160,
+        "max": 410,
+        "tier_bonus": false
+    },
+    {
+        "name": "guía turístico 🗺️",
+        "min": 230,
+        "max": 560,
+        "tier_bonus": true
+    },
+    {
+        "name": "asistente virtual 💼",
+        "min": 220,
+        "max": 540,
+        "tier_bonus": true
+    },
+    {
+        "name": "transcriptor de audio 🎧",
+        "min": 190,
+        "max": 470,
+        "tier_bonus": false
+    },
+    {
+        "name": "probador de comida 🍔",
+        "min": 180,
+        "max": 450,
+        "tier_bonus": false
+    },
+    {
+        "name": "repartidor de delivery 📦",
+        "min": 170,
+        "max": 430,
+        "tier_bonus": false
+    },
+    {
+        "name": "animador de eventos 🎉",
+        "min": 260,
+        "max": 610,
+        "tier_bonus": true
+    },
+    {
+        "name": "maquillador profesional 💄",
+        "min": 240,
+        "max": 580,
+        "tier_bonus": true
+    },
+    {
+        "name": "músico callejero 🎸",
+        "min": 200,
+        "max": 500,
+        "tier_bonus": true
+    },
+    {
+        "name": "vendedor de autos 🚙",
+        "min": 320,
+        "max": 750,
+        "tier_bonus": true
+    },
+    {
+        "name": "contador freelance 📊",
+        "min": 330,
+        "max": 770,
+        "tier_bonus": true
+    },
+    {
+        "name": "abogado consultor ⚖️",
+        "min": 380,
+        "max": 850,
+        "tier_bonus": true
+    },
+    {
+        "name": "médico de guardia 🏥",
+        "min": 400,
+        "max": 900,
+        "tier_bonus": true
+    },
+    {
+        "name": "desarrollador web 💻",
+        "min": 350,
+        "max": 820,
+        "tier_bonus": true
+    },
+    {
+        "name": "hacker ético 🔒",
+        "min": 370,
+        "max": 840,
+        "tier_bonus": true
+    },
+    {
+        "name": "arquitecto freelance 🏗️",
+        "min": 340,
+        "max": 790,
+        "tier_bonus": true
+    },
+    {
+        "name": "consultor empresarial 💼",
+        "min": 360,
+        "max": 830,
+        "tier_bonus": true
+    },
+    {
+        "name": "agente inmobiliario 🏠",
+        "min": 310,
+        "max": 730,
+        "tier_bonus": true
+    },
+    {
+        "name": "investigador privado 🔍",
+        "min": 300,
+        "max": 710,
+        "tier_bonus": true
+    },
+    {
+        "name": "ingeniero freelance 🔧",
+        "min": 370,
+        "max": 850,
+        "tier_bonus": true
+    },
+    {
+        "name": "científico de datos 📈",
+        "min": 390,
+        "max": 870,
+        "tier_bonus": true
+    }
+]

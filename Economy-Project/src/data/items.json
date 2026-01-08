@@ -1,0 +1,109 @@
+{
+  "items": [
+    {
+      "name": "Gold Coin",
+      "value": 100,
+      "description": "A shiny gold coin, perfect for trading."
+    },
+    {
+      "name": "Silver Coin",
+      "value": 50,
+      "description": "A silver coin, worth a bit less than gold."
+    },
+    {
+      "name": "Bronze Coin",
+      "value": 10,
+      "description": "A bronze coin, the least valuable of the coins."
+    },
+    {
+      "name": "Health Potion",
+      "value": 200,
+      "description": "Restores health when consumed."
+    },
+    {
+      "name": "Mana Potion",
+      "value": 150,
+      "description": "Restores mana when consumed."
+    },
+    {
+      "name": "Sword",
+      "value": 500,
+      "description": "A sharp sword for combat."
+    },
+    {
+      "name": "Shield",
+      "value": 400,
+      "description": "A sturdy shield for defense."
+    },
+    {
+      "name": "Bow",
+      "value": 300,
+      "description": "A bow for ranged attacks."
+    },
+    {
+      "name": "Arrow",
+      "value": 5,
+      "description": "A single arrow for the bow."
+    },
+    {
+      "name": "Magic Wand",
+      "value": 600,
+      "description": "A wand that enhances magical abilities."
+    },
+    {
+      "name": "Treasure Map",
+      "value": 250,
+      "description": "A map leading to hidden treasure."
+    },
+    {
+      "name": "Fishing Rod",
+      "value": 100,
+      "description": "A rod for catching fish."
+    },
+    {
+      "name": "Book of Spells",
+      "value": 700,
+      "description": "A book containing powerful spells."
+    },
+    {
+      "name": "Ring of Protection",
+      "value": 800,
+      "description": "A ring that provides magical protection."
+    },
+    {
+      "name": "Amulet of Strength",
+      "value": 900,
+      "description": "An amulet that increases physical strength."
+    },
+    {
+      "name": "Boots of Speed",
+      "value": 400,
+      "description": "Boots that increase movement speed."
+    },
+    {
+      "name": "Cloak of Invisibility",
+      "value": 1000,
+      "description": "A cloak that makes the wearer invisible."
+    },
+    {
+      "name": "Grappling Hook",
+      "value": 300,
+      "description": "A hook for climbing and traversing difficult terrain."
+    },
+    {
+      "name": "Potion of Strength",
+      "value": 250,
+      "description": "Increases strength temporarily."
+    },
+    {
+      "name": "Potion of Agility",
+      "value": 250,
+      "description": "Increases agility temporarily."
+    },
+    {
+      "name": "Potion of Intelligence",
+      "value": 250,
+      "description": "Increases intelligence temporarily."
+    }
+  ]
+}

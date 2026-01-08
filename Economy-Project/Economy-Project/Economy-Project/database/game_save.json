@@ -1,0 +1,31 @@
+{
+  "player_name": "Hero",
+  "coins": 1000,
+  "bank": 0,
+  "gems": 0,
+  "level": 1,
+  "xp": 0,
+  "total_earned": 0,
+  "total_spent": 0,
+  "inventory": {},
+  "equipment": {
+    "weapon": null,
+    "armor": null,
+    "accessory": null
+  },
+  "last_daily": null,
+  "last_work": null,
+  "last_mission": null,
+  "daily_streak": 0,
+  "missions_completed": 0,
+  "items_crafted": 0,
+  "enemies_defeated": 0,
+  "skill_points": 0,
+  "skills": {
+    "combat": 1,
+    "mining": 1,
+    "fishing": 1,
+    "crafting": 1
+  },
+  "achievements": []
+}
