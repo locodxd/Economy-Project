@@ -2,7 +2,7 @@ from discord.ext import commands
 import random
 
 class Jobs(commands.Cog):
-    """Commands related to jobs for earning income."""
+    """comandos relacionados con trabajos para ganar ingresos."""
 
     def __init__(self, bot):
         self.bot = bot
@@ -26,7 +26,7 @@ class Jobs(commands.Cog):
             {"name": "Electricista de emergencia", "min": 310, "max": 720},
             {"name": "Plomero a domicilio", "min": 300, "max": 700},
             {"name": "Chef privado", "min": 350, "max": 800},
-            {"name": "Chofer de Uber", "min": 210, "max": 520},
+            {"name": "FlavorTown coder", "min": 210, "max": 520},
             {"name": "Mesero en restaurante", "min": 170, "max": 430},
             {"name": "Editor de videos", "min": 270, "max": 630},
             {"name": "Diseñador gráfico", "min": 280, "max": 650},

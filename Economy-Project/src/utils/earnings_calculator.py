@@ -59,7 +59,7 @@ def calculate_earnings():
         
     
         work_per_day = (24 / 1) * hours_per_day  
-        work_earnings = work_per_day * 450  # Promedio de work pero puede variar
+        work_earnings = work_per_day * 450  
         work_daily = work_earnings
         work_weekly = work_daily * days_per_week
         

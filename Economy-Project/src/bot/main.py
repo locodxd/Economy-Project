@@ -23,7 +23,7 @@ logging.basicConfig(
     ]
 )
 
-# Reducir verbosidad de logs de Discord
+# con esto podes reducir la verbosidad de los logs de discord.py si quieres
 logging.getLogger('discord').setLevel(logging.WARNING)
 logging.getLogger('discord.http').setLevel(logging.WARNING)
 logging.getLogger('discord.gateway').setLevel(logging.WARNING)
@@ -33,7 +33,6 @@ logger.info('='*60)
 logger.info('INICIANDO BOT DE ECONOMÍA')
 logger.info('='*60)
 
-# Cargar variables de entorno
 logger.debug('Cargando variables de entorno...')
 load_dotenv()
 logger.debug('Variables de entorno cargadas')
@@ -167,7 +166,7 @@ async def on_guild_join(guild):
                     logger.debug(f'Enviando mensaje de salida al canal: {channel.name}')
                     embed = discord.Embed(
                         title="Acceso No Autorizado",
-                        description="Este bot solo funciona en servidores autorizados.",
+                        description="Este bot SOLO funciona en servidores autorizados.",
                         color=discord.Color.red()
                     )
                     embed.add_field(

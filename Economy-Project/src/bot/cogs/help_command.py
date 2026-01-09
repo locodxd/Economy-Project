@@ -50,9 +50,11 @@ class HelpView(discord.ui.View):
         # Comandos básicos
         basic_commands = [
             "`.daily` - Recompensa diaria (24h)",
+            "`.weekly` - Recompensa semanal (7d)",
             "`.work` - Trabaja para ganar dinero (1h)",
             "`.balance` - Ver tu dinero",
             "`.beg` - Mendiga dinero (5min)",
+            "`.search` - Busca dinero en lugares (10min)",
             "`.deposit` - Depositar en el banco",
             "`.withdraw` - Retirar del banco",
             "`.transfer` - Transferir dinero a otro usuario",
@@ -66,13 +68,30 @@ class HelpView(discord.ui.View):
         # Comandos de casino
         if self.bot.get_cog("Gambling"):
             casino_commands = [
-                "`.coinflip` - Cara o cruz",
-                "`.dice` - Lanza los dados",
-                "`.slots` - Máquina tragamonedas",
+                "`.coinflip` - Cara o cruz (2x)",
+                "`.dice` - Lanza los dados (hasta 6x)",
+                "`.slots` - Máquina tragamonedas (hasta 50x)",
+                "`.blackjack` - Blackjack 21 (2.5x)",
+                "`.roulette` - Ruleta europea (hasta 35x)",
+                "`.scratch` - Rasca y gana (hasta 20x)",
+                "`.crash` - Juego de crash (hasta 10x)",
             ]
             embed.add_field(
                 name="🎰 Casino",
                 value="\n".join(casino_commands),
+                inline=False
+            )
+        
+        # Comandos de crimen
+        if self.bot.get_cog("Crime"):
+            crime_commands = [
+                "`.rob` - Roba a otro usuario (30min)",
+                "`.heist` - Realiza un atraco grande (1h)",
+                "`.wanted` - Ver nivel de búsqueda",
+            ]
+            embed.add_field(
+                name="🔫 Crimen",
+                value="\n".join(crime_commands),
                 inline=False
             )
         

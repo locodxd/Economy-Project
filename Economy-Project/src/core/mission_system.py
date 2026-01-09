@@ -51,7 +51,7 @@ class MissionRegistry:
     def get_all_missions() -> List[Mission]:
         """Retorna todas las misiones disponibles"""
         return [
-            # MISIONES FÁCILES
+            # MISIONES SUPER FACILES
             Mission(
                 id="gather_wood",
                 name="Recolector de Madera",
@@ -257,15 +257,12 @@ class MissionManager:
             rewards = self.active_mission.rewards
             mission_id = self.active_mission.id
             
-            # Guardar en completadas
             if mission_id not in self.completed_missions:
                 self.completed_missions.append(mission_id)
             
-            # Añadir cooldown
             import time
             self.mission_cooldowns[mission_id] = time.time() + self.active_mission.cooldown
             
-            # Limpiar misión activa
             self.active_mission = None
             
             return True, rewards

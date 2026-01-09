@@ -143,7 +143,7 @@ class AdminCommands(commands.Cog):
         tipo: str = "wallet"
     ):
         """
-        Quita dinero a un usuario
+        Quita dinero al jugador seleccionado
         
         Args:
             usuario: El usuario
@@ -182,11 +182,13 @@ class AdminCommands(commands.Cog):
     
     @app_commands.command(name="aeco_tienda", description="Añade un item a la tienda del servidor")
     @app_commands.check(is_admin)
+    @app_commands.describe(cantidad='cantidad disponible (1 o más, escribe \'infinito\' para ilimitado)')
     async def aeco_tienda(
         self,
         interaction: discord.Interaction,
         nombre: str,
         precio: int,
+        cantidad: str,
         descripcion: str = "Sin descripción"
     ):
         """
@@ -200,6 +202,18 @@ class AdminCommands(commands.Cog):
         import json
         from pathlib import Path
         
+        if cantidad.lower() == "infinito":
+            cantidad_final = -1 
+        else:
+            try:
+                cantidad_final = int(cantidad)
+                if cantidad_final < 1:
+                    await interaction.response.send_message('la cantidad debe ser 1 o más, o "infinito"', ephemeral=True)
+                    return
+            except ValueError:
+                await interaction.response.send_message('la cantidad debe ser un número entero o "infinito"', ephemeral=True)
+                return
+            
         shop_path = Path("database/shop_items.json")
         shop_path.parent.mkdir(parents=True, exist_ok=True)
         
@@ -218,6 +232,7 @@ class AdminCommands(commands.Cog):
         item = {
             "nombre": nombre,
             "precio": precio,
+            "cantidad": cantidad_final,
             "descripcion": descripcion,
             "añadido_por": interaction.user.id,
             "fecha": discord.utils.utcnow().isoformat()
@@ -280,12 +295,12 @@ class AdminCommands(commands.Cog):
         """Manejo de errores para comandos admin"""
         if isinstance(error, app_commands.CheckFailure):
             await interaction.response.send_message(
-                "❌ Solo los administradores pueden usar este comando.",
+                " Solo los administradores pueden usar este comando, porque intentas esto.",
                 ephemeral=True
             )
         else:
             await interaction.response.send_message(
-                f"❌ Ocurrió un error: {str(error)}",
+                f" Ocurrió un error: {str(error)}",
                 ephemeral=True
             )
 
