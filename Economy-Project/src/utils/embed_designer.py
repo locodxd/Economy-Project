@@ -22,7 +22,7 @@ class EmbedDesigner:
 
     @staticmethod
     def create_cooldown_embed(title: str, remaining_seconds: int, action_hint: str = None) -> Embed:
-        embed = Embed(title=title, description=f"Espera {remaining_seconds} segundos antes de volver a usar este comando.", color=0xFFA500)
+        embed = Embed(title=title, description=f"Espera {remaining_seconds} segundos para volver a usar este cmd.", color=0xFFA500)
         if action_hint:
             embed.add_field(name="Sugerencia", value=action_hint, inline=False)
         return embed

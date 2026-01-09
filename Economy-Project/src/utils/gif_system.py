@@ -2,7 +2,7 @@ from typing import Optional
 import requests
 
 class TenorGifSystem:
-    API_KEY = 'YOUR_TENOR_API_KEY'  # Replace with your actual Tenor API key
+    API_KEY = 'YOUR_TENOR_API_KEY'  # Reemplaza esto por tu clave de API de Tenor puedes usarlo sin, pero es muy bonito tenerla
     BASE_URL = 'https://api.tenor.com/v1/search'
 
     @classmethod

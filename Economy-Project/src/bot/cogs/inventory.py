@@ -46,7 +46,7 @@ class Inventory(commands.Cog):
         # Placeholder for adding item to the user's inventory in the database
         await ctx.send(f"Has añadido {quantity} x {item_name} a tu inventario.")
 
-    @commands.command(name='removeitem', aliases=['remove'])
+    @commands.command(name='removeitem', aliases=['rm', 'remitem'])
     async def remove_item(self, ctx, item_name: str, quantity: int):
         """➖ Remove an item from your inventory."""
         user_id = ctx.author.id

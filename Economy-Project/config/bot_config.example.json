@@ -1,0 +1,17 @@
+{
+  "owner_role": "ID_DEL_ROL_OWNER",
+  "admin_user_ids": [
+    "ID_USUARIO_ADMIN_1",
+    "ID_USUARIO_ADMIN_2"
+  ],
+  "allowed_servers": [
+    "ID_SERVIDOR_1",
+    "ID_SERVIDOR_2"
+  ],
+  "command_channels": {
+    "ID_SERVIDOR_1": [
+      "ID_CANAL_1",
+      "ID_CANAL_2"
+    ]
+  }
+}

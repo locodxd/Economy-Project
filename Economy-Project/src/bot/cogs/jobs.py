@@ -59,18 +59,17 @@ class Jobs(commands.Cog):
             {"name": "Científico de datos", "min": 390, "max": 870},
         ]
 
-    @commands.command(name="find_job")
+    @commands.command(name="findjob", aliases=["buscarjob"])
     async def find_job(self, ctx):
         """🔍 Encuentra un trabajo para ganar dinero."""
         job = random.choice(self.jobs)
         await ctx.send(f"Has encontrado un trabajo como **{job['name']}**. Puedes ganar entre ${job['min']} y ${job['max']} por trabajo.")
 
-    @commands.command(name="work")
-    async def work(self, ctx):
-        """💼 Trabaja para ganar dinero."""
-        job = random.choice(self.jobs)
-        earnings = random.randint(job['min'], job['max'])
-        await ctx.send(f"Has trabajado como **{job['name']}** y ganaste ${earnings}.")
+    @commands.command(name="joblist", aliases=["listajobs", "trabajos"])
+    async def job_list(self, ctx):
+        """💼 Muestra la lista de trabajos disponibles."""
+        job_list = "\n".join([f"**{job['name']}**: ${job['min']} - ${job['max']}" for job in self.jobs])
+        await ctx.send(f"📋 **Trabajos Disponibles:**\n{job_list}")
 
 async def setup(bot):
     await bot.add_cog(Jobs(bot))

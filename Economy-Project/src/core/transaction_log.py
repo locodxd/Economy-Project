@@ -4,7 +4,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 class TransactionLog:
-    """Class to handle transaction logging for the economy system."""
 
     def __init__(self, db_connection):
         self.db_connection = db_connection
@@ -36,7 +35,7 @@ class TransactionLog:
             return []
 
     def clear_user_transactions(self, user_id):
-        """Clears all transactions for a specific user."""
+        """Clears all transactions for a specific user. ya me cansé de hablar en ingles"""
         query = "DELETE FROM transactions WHERE user_id = ?"
         try:
             with self.db_connection:

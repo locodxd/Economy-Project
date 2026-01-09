@@ -1,0 +1,168 @@
+# =====================================================
+# GITIGNORE - Bot de Economía Discord
+# =====================================================
+
+# ===== ARCHIVOS SENSIBLES =====
+# Token y configuración privada
+.env
+.env.local
+*.env
+
+# Configuración del bot (puede contener IDs privados)
+config/bot_config.json
+
+# Base de datos con información de usuarios
+database/users.json
+database/shop_items.json
+database/transactions.json
+database/backups/*.json
+database/*.db
+
+# ===== PYTHON =====
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# ===== LOGS =====
+# Archivos de log
+logs/*.log
+*.log
+
+# ===== IDEs =====
+# VSCode
+.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+.idea_modules/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ===== SISTEMA OPERATIVO =====
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ===== TEMPORALES =====
+# Archivos temporales
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Backups
+*.bak
+*.backup
+*.old
+
+# ===== TESTING =====
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+
+# ===== OTROS =====
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# ===== MANTENER CARPETAS VACÍAS =====
+# Mantener estructura de carpetas pero ignorar contenido
+!database/.gitkeep
+!logs/.gitkeep
+!database/backups/.gitkeep
+
+# ===== EXCEPCIONES =====
+# Archivos que SÍ queremos en el repositorio
+!.env.example
+!database/.gitkeep
+!logs/.gitkeep
