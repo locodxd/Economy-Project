@@ -39,82 +39,103 @@ class HelpView(discord.ui.View):
         embed = self.get_admin_embed()
         await interaction.response.edit_message(embed=embed, view=self)
     
+    @discord.ui.button(label="⚔️ RPG", style=discord.ButtonStyle.success, custom_id="help_rpg")
+    async def rpg_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        """Botón para mostrar comandos RPG"""
+        if interaction.user.id != self.ctx.author.id:
+            await interaction.response.send_message("❌ Solo quien usó el comando puede usar estos botones.", ephemeral=True)
+            return
+        
+        embed = self.get_rpg_embed()
+        await interaction.response.edit_message(embed=embed, view=self)
+    
     def get_home_embed(self):
         """Genera el embed de ayuda general"""
         embed = discord.Embed(
             title="💰 Sistema de Economía - Ayuda",
-            description="Usa `.help <comando>` para información detallada sobre un comando.",
+            description="Usa `.help <comando>` para info detallada | Botones para navegar",
             color=discord.Color.gold()
         )
         
-        # Comandos básicos
         basic_commands = [
-            "`.daily` - Recompensa diaria (24h)",
-            "`.weekly` - Recompensa semanal (7d)",
-            "`.work` - Trabaja para ganar dinero (1h)",
-            "`.balance` - Ver tu dinero",
-            "`.beg` - Mendiga dinero (5min)",
-            "`.search` - Busca dinero en lugares (10min)",
-            "`.deposit` - Depositar en el banco",
-            "`.withdraw` - Retirar del banco",
-            "`.transfer` - Transferir dinero a otro usuario",
+            "`.daily` - Recompensa diaria",
+            "`.weekly` - Recompensa semanal",
+            "`.work` - Trabaja para ganar",
+            "`.balance` - Ver dinero",
+            "`.beg` - Mendiga dinero",
+            "`.search` - Busca dinero",
+            "`.deposit` - Deposita en banco",
+            "`.withdraw` - Retira del banco",
+            "`.transfer` - Transfiere dinero",
         ]
         embed.add_field(
-            name="💵 Comandos Básicos",
+            name="💵 Básicos",
             value="\n".join(basic_commands),
-            inline=False
+            inline=True
         )
         
-        # Comandos de casino
         if self.bot.get_cog("Gambling"):
             casino_commands = [
-                "`.coinflip` - Cara o cruz (2x)",
-                "`.dice` - Lanza los dados (hasta 6x)",
-                "`.slots` - Máquina tragamonedas (hasta 50x)",
-                "`.blackjack` - Blackjack 21 (2.5x)",
-                "`.roulette` - Ruleta europea (hasta 35x)",
-                "`.scratch` - Rasca y gana (hasta 20x)",
-                "`.crash` - Juego de crash (hasta 10x)",
+                "`.coinflip` - Cara o cruz",
+                "`.dice` - Lanza dados",
+                "`.slots` - Tragamonedas",
+                "`.blackjack` - Blackjack 21",
+                "`.roulette` - Ruleta",
+                "`.scratch` - Rasca y gana",
+                "`.crash` - Juego crash",
             ]
             embed.add_field(
                 name="🎰 Casino",
                 value="\n".join(casino_commands),
-                inline=False
+                inline=True
             )
         
-        # Comandos de crimen
         if self.bot.get_cog("Crime"):
             crime_commands = [
-                "`.rob` - Roba a otro usuario (30min)",
-                "`.heist` - Realiza un atraco grande (1h)",
-                "`.wanted` - Ver nivel de búsqueda",
+                "`.rob` - Roba a otro",
+                "`.heist` - Atraco grande",
+                "`.wanted` - Tu búsqueda",
             ]
             embed.add_field(
                 name="🔫 Crimen",
                 value="\n".join(crime_commands),
-                inline=False
+                inline=True
             )
         
-        # Comandos de tienda
-        if self.bot.get_cog("Shop"):
-            shop_commands = [
-                "`.shop` - Ver la tienda",
-                "`.buy` - Comprar un item",
-                "`.inventory` - Ver tu inventario",
-            ]
-            embed.add_field(
-                name="🛒 Tienda",
-                value="\n".join(shop_commands),
-                inline=False
-            )
+        shop_commands = [
+            "`.tienda` - Ver tienda",
+            "`.comprar` - Comprar item",
+            "`.inventario` - Tu bolso",
+            "`.vender` - Vender item",
+        ]
+        embed.add_field(
+            name="🛒 Tienda",
+            value="\n".join(shop_commands),
+            inline=True
+        )
+        
+        rpg_commands = [
+            "`.rpg profile` - Tus stats",
+            "`.rpg missions` - Ver misiones",
+            "`.rpg mission` - Hacer mision",
+            "`.rpg boss` - Pelear boss",
+            "`.rpg heal` - Curarte",
+            "`.rpg abilities` - Habilidades",
+            "`.rpg buy_ability` - Comprar habilidad",
+        ]
+        embed.add_field(
+            name="⚔️ RPG",
+            value="\n".join(rpg_commands),
+            inline=True
+        )
         
         embed.add_field(
             name="💡 Tip",
-            value="Escribe mensajes en el servidor para ganar monedas automáticamente!\n¡Cada 100 mensajes recibes 1000 coins de bonus!",
+            value="¡Escribe mensajes para ganar coins! Cada 100 mensajes +1000 bonus",
             inline=False
         )
         
-        embed.set_footer(text=f"Prefijo: . | Total de comandos: {len(self.bot.commands)}")
+        embed.set_footer(text=f"Total comandos: {len(self.bot.commands)}")
         return embed
     
     def get_admin_embed(self):
@@ -145,6 +166,53 @@ class HelpView(discord.ui.View):
         )
         
         embed.set_footer(text="Usa los comandos slash (/) para los comandos de economía")
+        return embed
+    
+    def get_rpg_embed(self):
+        """Genera el embed de comandos RPG"""
+        embed = discord.Embed(
+            title="⚔️ Sistema RPG",
+            description="Haz misiones, pelea bosses y mejora tus habilidades",
+            color=discord.Color.purple()
+        )
+        
+        profile_commands = [
+            "`.rpg profile` - Ver tus stats",
+            "`.rpg missions` - Ver misiones",
+        ]
+        embed.add_field(
+            name="📊 Info",
+            value="\n".join(profile_commands),
+            inline=True
+        )
+        
+        mission_commands = [
+            "`.rpg mission <id>` - Hacer misión",
+            "`.rpg boss <id>` - Pelear boss",
+            "`.rpg heal` - Curarte/Revivir",
+        ]
+        embed.add_field(
+            name="⚡ Acción",
+            value="\n".join(mission_commands),
+            inline=True
+        )
+        
+        ability_commands = [
+            "`.rpg abilities` - Ver habilidades",
+            "`.rpg buy_ability <id>` - Comprar",
+        ]
+        embed.add_field(
+            name="✨ Habilidades",
+            value="\n".join(ability_commands),
+            inline=True
+        )
+        
+        embed.add_field(
+            name="💡 Habilidades disponibles",
+            value="**luck** - 15% más dinero\n**grind** - Cooldowns 20% rápido\n**crit** - Crítico 20%\n**tank** - 20% menos daño",
+            inline=False
+        )
+        
         return embed
     
     async def on_timeout(self):
@@ -195,15 +263,6 @@ class HelpCommand(commands.Cog):
                 if cmd.signature:
                     usage += f" {cmd.signature}"
                 embed.add_field(name="💡 Uso", value=f"`{usage}`", inline=False)
-                
-                # Cooldown
-                if cmd._buckets._cooldown:
-                    cooldown = cmd._buckets._cooldown
-                    embed.add_field(
-                        name="⏱️ Cooldown",
-                        value=f"{cooldown.rate} uso(s) cada {cooldown.per}s",
-                        inline=False
-                    )
                 
                 await ctx.send(embed=embed)
             else:

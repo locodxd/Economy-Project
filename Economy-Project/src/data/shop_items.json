@@ -1,64 +1,94 @@
 {
   "items": [
     {
-      "name": "Health Potion",
-      "description": "Restores 50 health points.",
-      "price": 100,
-      "type": "potion"
-    },
-    {
-      "name": "Mana Potion",
-      "description": "Restores 50 mana points.",
+      "name": "Poción de Vida",
+      "description": "Restaura 50 puntos de vida. Úsala cuando andes mal.",
       "price": 150,
       "type": "potion"
     },
     {
-      "name": "Sword",
-      "description": "A basic sword for combat.",
-      "price": 300,
-      "type": "weapon"
+      "name": "Poción Mágica",
+      "description": "Restaura maná y energía. Para hechiceros.",
+      "price": 200,
+      "type": "potion"
     },
     {
-      "name": "Shield",
-      "description": "Provides protection against attacks.",
-      "price": 250,
-      "type": "armor"
-    },
-    {
-      "name": "Gold Coin",
-      "description": "A shiny gold coin.",
-      "price": 10,
-      "type": "currency"
-    },
-    {
-      "name": "Silver Coin",
-      "description": "A shiny silver coin.",
-      "price": 5,
-      "type": "currency"
-    },
-    {
-      "name": "Magic Wand",
-      "description": "A wand that casts spells.",
+      "name": "Espada de Hierro",
+      "description": "Una espada básica para pelear. Sube ataque.",
       "price": 500,
       "type": "weapon"
     },
     {
-      "name": "Leather Armor",
-      "description": "Basic armor made of leather.",
-      "price": 200,
+      "name": "Escudo de Madera",
+      "description": "Protección básica. Sube defensa.",
+      "price": 400,
       "type": "armor"
     },
     {
-      "name": "Healing Herb",
-      "description": "A herb that heals minor wounds.",
-      "price": 50,
+      "name": "Armadura de Cuero",
+      "description": "Ropa protectora. Aumenta defensa significativamente.",
+      "price": 600,
+      "type": "armor"
+    },
+    {
+      "name": "Varita Mágica",
+      "description": "Lanza hechizos poderosos. Muy cara pero vale la pena.",
+      "price": 1500,
+      "type": "weapon"
+    },
+    {
+      "name": "Hierbas Curativas",
+      "description": "Plantas que curan heridas leves rápido.",
+      "price": 75,
       "type": "herb"
     },
     {
-      "name": "Treasure Map",
-      "description": "Leads to hidden treasures.",
-      "price": 300,
+      "name": "Mapa del Tesoro",
+      "description": "Pista para encontrar tesoros escondidos.",
+      "price": 800,
       "type": "map"
+    },
+    {
+      "name": "Brújula Antigua",
+      "description": "Te ayuda a no perderte en el camino.",
+      "price": 250,
+      "type": "tool"
+    },
+    {
+      "name": "Antorcha",
+      "description": "Ilumina lugares oscuros. Básica pero útil.",
+      "price": 50,
+      "type": "tool"
+    },
+    {
+      "name": "Casco de Acero",
+      "description": "Protege la cabeza. Aumenta defensa.",
+      "price": 550,
+      "type": "armor"
+    },
+    {
+      "name": "Gemas Brillantes",
+      "description": "Valiosas gemas. Se venden bien.",
+      "price": 1200,
+      "type": "gem"
+    },
+    {
+      "name": "Cuerda Resistente",
+      "description": "Útil para muchas cosas. Nunca sabes cuándo la necesites.",
+      "price": 100,
+      "type": "tool"
+    },
+    {
+      "name": "Comida Nutritiva",
+      "description": "Pan y carne. Recupera energía rápido.",
+      "price": 120,
+      "type": "food"
+    },
+    {
+      "name": "Libro de Hechizos",
+      "description": "Aprende nuevos hechizos. Sube inteligencia.",
+      "price": 900,
+      "type": "book"
     }
   ]
 }
