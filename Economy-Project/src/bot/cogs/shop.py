@@ -92,7 +92,7 @@ class Shop(commands.Cog):
         embed.add_field(name="Dinero Restante", value=f"${wallet - price + bonus:,}", inline=False)
         await ctx.send(embed=embed)
 
-    @commands.command(name='inventario', aliases=['inventory', 'inv'])
+    @commands.command(name='inventario')
     async def show_inventory(self, ctx):
         user_data = db.get_user(str(ctx.author.id))
         inventory = user_data.get('inventory', {})

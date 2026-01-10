@@ -277,71 +277,67 @@ class Crime(commands.Cog):
         self.bot = bot
     
     @commands.command(name="search", aliases=["buscar"])
+    @commands.cooldown(1, 300, commands.BucketType.user)
     async def search(self, ctx, location: str = None):
-        """
-        Busca dinero en diferentes lugares
-        
-        Lugares disponibles: auto, basura, bolsillos, casa, parque, mall
-        Diferentes lugares tienen diferentes rangos de dinero.
-        Cooldown: 10 minutos
-        
-        Uso: .search <lugar>
-        Ejemplo: .search auto
-        """
         locations = {
-            "auto": {"min": 50, "max": 300, "emoji": "🚗", "name": "un auto"},
-            "basura": {"min": 10, "max": 100, "emoji": "🗑️", "name": "la basura"},
-            "bolsillos": {"min": 20, "max": 150, "emoji": "👖", "name": "tus bolsillos"},
-            "casa": {"min": 100, "max": 400, "emoji": "🏠", "name": "tu casa"},
-            "parque": {"min": 30, "max": 200, "emoji": "🌳", "name": "el parque"},
-            "mall": {"min": 80, "max": 350, "emoji": "🏬", "name": "el mall"},
+            "auto": {"min": 50, "max": 300, "name": "un auto"},
+            "basura": {"min": 10, "max": 100, "name": "la basura"},
+            "bolsillos": {"min": 20, "max": 150, "name": "tus bolsillos"},
+            "casa": {"min": 100, "max": 400, "name": "tu casa"},
+            "parque": {"min": 30, "max": 200, "name": "el parque"},
+            "mall": {"min": 80, "max": 350, "name": "el mall"},
         }
         
         if not location or location.lower() not in locations:
+            ctx.command.reset_cooldown(ctx)
             places = ", ".join(locations.keys())
-            await ctx.send(f"❌ Especifica un lugar válido: {places}")
-            return
-        
-        # aplicar cooldown DESPUÉS de validar
-        bucket = self.search._buckets.get_bucket(ctx.message)
-        retry_after = bucket.update_rate_limit()
-        if retry_after:
-            await ctx.send(f"⏳ Este comando está en cooldown. Intenta de nuevo en {retry_after:.1f}s")
+            await ctx.send(f"especifica donde: {places}")
             return
         
         location = location.lower()
         place = locations[location]
         
-        jackpot = random.random() < 0.05
+        jackpot = random.random() < 0.08
+        nothing = random.random() < 0.15 and not jackpot
+        cops = random.random() < 0.1
         
-        nothing = random.random() < 0.20 and not jackpot
+        if cops and not jackpot:
+            fine = random.randint(100, 300)
+            db.remove_money(str(ctx.author.id), fine, "wallet")
+            messages = [
+                f"la policia te paro buscando en {place['name']}, multa ${fine:,}",
+                f"guardias de seguridad te cacharon, pagas ${fine:,}",
+                f"mal momento, policia cerca. multa ${fine:,}",
+            ]
+            await ctx.send(f"{ctx.author.mention}, {random.choice(messages)}")
+            return
         
         if nothing:
             messages = [
-                f"Buscaste en {place['name']} pero no encontraste nada...",
-                f"Perdiste el tiempo buscando en {place['name']}",
-                f"Alguien ya había buscado en {place['name']} antes que tu",
+                f"buscaste en {place['name']} pero nada",
+                f"alguien ya busco ahi antes",
+                f"perdiste el tiempo en {place['name']}",
             ]
-            await ctx.send(f"{place['emoji']} {ctx.author.mention}, {random.choice(messages)}")
+            await ctx.send(f"{ctx.author.mention}, {random.choice(messages)}")
             return
         
         if jackpot:
             found = random.randint(place['max'], place['max'] * 3)
             messages = [
-                f"WTF! Encontraste ${found:,} en {place['name']}!",
-                f"Que suerte! Había ${found:,} escondidos en {place['name']}!",
-                f"Jackpot! ${found:,} estaban en {place['name']}!",
+                f"wtf encontraste ${found:,} en {place['name']}",
+                f"jackpot ${found:,} escondidos en {place['name']}",
+                f"suerte del siglo, ${found:,} en {place['name']}",
             ]
         else:
             found = random.randint(place['min'], place['max'])
             messages = [
-                f"Encontraste ${found:,} en {place['name']}",
-                f"Buscaste en {place['name']} y hallaste ${found:,}",
-                f"Había ${found:,} en {place['name']}!",
+                f"encontraste ${found:,} en {place['name']}",
+                f"habia ${found:,} tirados en {place['name']}",
+                f"${found:,} escondidos en {place['name']}",
             ]
         
         db.add_money(str(ctx.author.id), found, "wallet")
-        await ctx.send(f"{place['emoji']} {ctx.author.mention}, {random.choice(messages)}")
+        await ctx.send(f"{ctx.author.mention}, {random.choice(messages)}")
     
     @commands.command(name="rob", aliases=["robar"])
     async def rob(self, ctx, target: discord.Member = None):
@@ -381,13 +377,6 @@ class Crime(commands.Cog):
         
         if robber_wallet < fine:
             await ctx.send(f"❌ Necesitas al menos ${fine:,} en tu wallet para intentar robar (para pagar la multa si fallas)")
-            return
-        
-        # aplicar cooldown DESPUÉS de todas las validaciones
-        bucket = self.rob._buckets.get_bucket(ctx.message)
-        retry_after = bucket.update_rate_limit()
-        if retry_after:
-            await ctx.send(f"⏳ Este comando está en cooldown. Intenta de nuevo en {retry_after:.1f}s")
             return
         
         success_chance = 0.40
@@ -487,6 +476,7 @@ class Crime(commands.Cog):
         await ctx.send(embed=embed)
     
     @commands.command(name="heist", aliases=["atraco"])
+    @commands.cooldown(1, 3600, commands.BucketType.user)
     async def heist(self, ctx):
         """
         Realiza un atraco grande
@@ -498,16 +488,9 @@ class Crime(commands.Cog):
         user_data = db.get_user(str(ctx.author.id))
         wallet = user_data.get('wallet', 0)
         
-        # necesitas al menos $500 para intentar un heist
         if wallet < 500:
+            ctx.command.reset_cooldown(ctx)
             await ctx.send("❌ Necesitas al menos $500 para planear un heist")
-            return
-        
-        # aplicar cooldown DESPUÉS de validar
-        bucket = self.heist._buckets.get_bucket(ctx.message)
-        retry_after = bucket.update_rate_limit()
-        if retry_after:
-            await ctx.send(f"⏳ Este comando está en cooldown. Intenta de nuevo en {retry_after:.1f}s")
             return
         
         places = [

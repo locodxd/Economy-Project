@@ -41,12 +41,6 @@ class Gambling(commands.Cog):
             await ctx.send(f"❌ No tienes suficiente dinero. Tu wallet: ${user_data.get('wallet', 0):,}")
             return
         
-        bucket = self.coinflip._buckets.get_bucket(ctx.message)
-        retry_after = bucket.update_rate_limit()
-        if retry_after:
-            await ctx.send(f"⏳ Este comando está en cooldown. Intenta de nuevo en {retry_after:.1f}s")
-            return
-        
         if random.random() < 0.01:
             bonus = int(amount * 3)
             db.add_money(str(ctx.author.id), bonus, "wallet")
@@ -126,12 +120,6 @@ class Gambling(commands.Cog):
         user_data = db.get_user(str(ctx.author.id))
         if user_data.get('wallet', 0) < amount:
             await ctx.send(f"❌ No tienes suficiente dinero. Tu wallet: ${user_data.get('wallet', 0):,}")
-            return
-        
-        bucket = self.dice._buckets.get_bucket(ctx.message)
-        retry_after = bucket.update_rate_limit()
-        if retry_after:
-            await ctx.send(f"⏳ Este comando está en cooldown. Intenta de nuevo en {retry_after:.1f}s")
             return
         
         golden_dice = random.random() < 0.01
@@ -219,12 +207,6 @@ class Gambling(commands.Cog):
             return
     
     
-        bucket = self.slots._buckets.get_bucket(ctx.message)
-        retry_after = bucket.update_rate_limit()
-        if retry_after:
-            await ctx.send(f"⏳ Este comando está en cooldown. Intenta de nuevo en {retry_after:.1f}s")
-            return
-        
         # evento: maquina rota (2% chance)
         if random.random() < 0.02:
             refund = int(amount * 1.5)
@@ -334,13 +316,6 @@ class Gambling(commands.Cog):
         
         if wallet < amount:
             await ctx.send(f"❌ No tienes suficiente dinero, pobre. Tu wallet: ${wallet:,}")
-            return
-        
-        # aplicar cooldown DESPUÉS de validar
-        bucket = self.blackjack._buckets.get_bucket(ctx.message)
-        retry_after = bucket.update_rate_limit()
-        if retry_after:
-            await ctx.send(f"⏳ Este comando está en cooldown. Intenta de nuevo en {retry_after:.1f}s")
             return
         
         # evento random antes del juego (3% chance)
@@ -460,12 +435,6 @@ class Gambling(commands.Cog):
             await ctx.send(f"❌ No tienes suficiente dinero. Tu wallet: ${user_data.get('wallet', 0):,}")
             return
         
-        bucket = self.roulette._buckets.get_bucket(ctx.message)
-        retry_after = bucket.update_rate_limit()
-        if retry_after:
-            await ctx.send(f"⏳ Este comando está en cooldown. Intenta de nuevo en {retry_after:.1f}s")
-            return
-        
         bet = bet.lower()
         
         rigged = random.random() < 0.02
@@ -543,12 +512,6 @@ class Gambling(commands.Cog):
             await ctx.send(f"❌ No tienes suficiente dinero. Tu wallet: ${user_data.get('wallet', 0):,}")
             return
         
-        bucket = self.scratch._buckets.get_bucket(ctx.message)
-        retry_after = bucket.update_rate_limit()
-        if retry_after:
-            await ctx.send(f"⏳ Este comando está en cooldown. Intenta de nuevo en {retry_after:.1f}s")
-            return
-        
         symbols = ["💎", "7️⃣", "🍀", "⭐", "❌", "❌", "❌", "❌", "❌", "💔"]  # 60% de perder
         
         golden = random.random() < 0.01
@@ -618,12 +581,6 @@ class Gambling(commands.Cog):
         user_data = db.get_user(str(ctx.author.id))
         if user_data.get('wallet', 0) < amount:
             await ctx.send(f"❌ No tienes suficiente dinero. Tu wallet: ${user_data.get('wallet', 0):,}")
-            return
-        
-        bucket = self.crash._buckets.get_bucket(ctx.message)
-        retry_after = bucket.update_rate_limit()
-        if retry_after:
-            await ctx.send(f"⏳ Este comando está en cooldown. Intenta de nuevo en {retry_after:.1f}s")
             return
         
         # evento: crash manipulado (3% chance) - siempre llegas

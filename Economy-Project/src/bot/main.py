@@ -34,8 +34,11 @@ logger.info('INICIANDO BOT DE ECONOMÍA')
 logger.info('='*60)
 
 logger.debug('Cargando variables de entorno...')
-load_dotenv()
-logger.debug('Variables de entorno cargadas')
+# Cargar .env desde la raíz del proyecto (2 niveles arriba)
+env_path = Path(__file__).parent.parent.parent / '.env'
+load_dotenv(dotenv_path=env_path)
+logger.debug(f'Variables de entorno cargadas desde: {env_path}')
+logger.debug(f'TENOR_API_KEY encontrada: {"Si" if os.getenv("TENOR_API_KEY") else "No"}')
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 logger.debug(f'Token encontrado: {"Si" if TOKEN else "No"}')

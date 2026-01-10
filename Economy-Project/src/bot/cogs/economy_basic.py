@@ -171,22 +171,11 @@ class EconomyBasic(commands.Cog):
     @commands.command(name="daily", aliases=["d", "diario"])
     @commands.cooldown(1, 86400, commands.BucketType.user)
     async def daily(self, ctx):
-        """
-        Gana dinero gratis cada 24 horas.
-        Mantén tu racha para bonos extras!
-        """
         logger.debug(f'Comando .daily ejecutado por {ctx.author} (ID: {ctx.author.id}) en {ctx.guild.name if ctx.guild else "DM"}')
-        
-        bucket = self.daily._buckets.get_bucket(ctx.message)
-        retry_after = bucket.update_rate_limit()
-        if retry_after:
-            await ctx.send(f"⏳ Este comando está en cooldown. Intenta de nuevo en {retry_after:.1f}s")
-            return
         
         user_data = db.get_user(str(ctx.author.id))
         base_reward = ECONOMY_CONFIG['daily_reward']
         
-        # esta mmd hace la racha
         last_daily = user_data.get('last_daily')
         streak = user_data.get('daily_streak', 0)
         
@@ -231,19 +220,7 @@ class EconomyBasic(commands.Cog):
     @commands.command(name="weekly", aliases=["semanal"])
     @commands.cooldown(1, 604800, commands.BucketType.user)
     async def weekly(self, ctx):
-        """
-        Reclama tu recompensa semanal
-        
-        Gana una gran recompensa cada 7 días.
-        Cooldown: 7 días
-        """
         logger.debug(f'Comando .weekly ejecutado por {ctx.author} (ID: {ctx.author.id})')
-        
-        bucket = self.weekly._buckets.get_bucket(ctx.message)
-        retry_after = bucket.update_rate_limit()
-        if retry_after:
-            await ctx.send(f"⏳ Este comando está en cooldown. Intenta de nuevo en {retry_after:.1f}s")
-            return
         
         user_data = db.get_user(str(ctx.author.id))
         base_reward = 5000 
@@ -279,12 +256,6 @@ class EconomyBasic(commands.Cog):
         Elige un trabajo aleatorio y gana monedas.
         Cooldown: 1 hora
         """
-        bucket = self.work._buckets.get_bucket(ctx.message)
-        retry_after = bucket.update_rate_limit()
-        if retry_after:
-            await ctx.send(f"⏳ Este comando está en cooldown. Intenta de nuevo en {retry_after:.1f}s")
-            return
-        
         jobs = [
             {"name": "programador", "emoji": "💻", "min": 300, "max": 600},
             {"name": "diseñador", "emoji": "🎨", "min": 250, "max": 500},
@@ -301,6 +272,7 @@ class EconomyBasic(commands.Cog):
             fine = random.randint(50, 200)
             db.remove_money(str(ctx.author.id), fine, "wallet")
             await ctx.send(f"🚪 {ctx.author.mention}, te despidieron del trabajo de {job['name']} por llegar tarde. Multa: ${fine:,}")
+            ctx.command.reset_cooldown(ctx)
             return
         
         # acá puede pasar cualquier cosa mala
@@ -309,6 +281,7 @@ class EconomyBasic(commands.Cog):
             accident_cost = random.randint(100, 300)
             db.remove_money(str(ctx.author.id), accident_cost, "wallet")
             await ctx.send(f"🤕 {ctx.author.mention}, tuviste un accidente como {job['name']}. Gastos médicos: ${accident_cost:,}")
+            ctx.command.reset_cooldown(ctx)
             return
         
         elif event_roll < 0.13:
@@ -453,18 +426,6 @@ class EconomyBasic(commands.Cog):
     @commands.command(name="beg", aliases=["mendigar"])
     @commands.cooldown(1, 300, commands.BucketType.user)
     async def beg(self, ctx):
-        """
-        Pide dinero
-        
-        Mendiga por monedas. A veces funciona, a veces no.
-        Cooldown: 5 minutos
-        """
-        bucket = self.beg._buckets.get_bucket(ctx.message)
-        retry_after = bucket.update_rate_limit()
-        if retry_after:
-            await ctx.send(f"⏳ Este comando está en cooldown. Intenta de nuevo en {retry_after:.1f}s")
-            return
-        
         event_roll = random.random()
         
         if event_roll < 0.03:
@@ -474,9 +435,11 @@ class EconomyBasic(commands.Cog):
                 stolen = random.randint(50, min(500, wallet // 2))
                 db.remove_money(str(ctx.author.id), stolen, "wallet")
                 await ctx.send(f"😨 {ctx.author.mention}, alguien te asaltó mientras mendigabas y te robó ${stolen:,}! F")
+                ctx.command.reset_cooldown(ctx)
                 return
             else:
                 await ctx.send(f"😅 {ctx.author.mention}, intentaron asaltarte pero estas tan pobre que se fueron. Sad pero safe")
+                ctx.command.reset_cooldown(ctx)
                 return
         
         elif event_roll < 0.07:

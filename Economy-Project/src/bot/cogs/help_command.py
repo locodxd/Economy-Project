@@ -52,21 +52,19 @@ class HelpView(discord.ui.View):
     def get_home_embed(self):
         """Genera el embed de ayuda general"""
         embed = discord.Embed(
-            title="💰 Sistema de Economía - Ayuda",
-            description="Usa `.help <comando>` para info detallada | Botones para navegar",
+            title="💰 Sistema de Economía",
+            description="Usa `.help <comando>` para info detallada sobre un comando específico",
             color=discord.Color.gold()
         )
         
         basic_commands = [
             "`.daily` - Recompensa diaria",
             "`.weekly` - Recompensa semanal",
-            "`.work` - Trabaja para ganar",
+            "`.work` - Trabaja y gana",
             "`.balance` - Ver dinero",
-            "`.beg` - Mendiga dinero",
-            "`.search` - Busca dinero",
-            "`.deposit` - Deposita en banco",
-            "`.withdraw` - Retira del banco",
-            "`.transfer` - Transfiere dinero",
+            "`.deposit` - Al banco",
+            "`.withdraw` - Del banco",
+            "`.transfer` - Enviar dinero",
         ]
         embed.add_field(
             name="💵 Básicos",
@@ -74,15 +72,27 @@ class HelpView(discord.ui.View):
             inline=True
         )
         
+        earn_commands = [
+            "`.beg` - Mendiga",
+            "`.search` - Busca dinero",
+            "`.rob` - Roba usuario",
+            "`.heist` - Atraco grande",
+        ]
+        embed.add_field(
+            name="💸 Ganar Dinero",
+            value="\n".join(earn_commands),
+            inline=True
+        )
+        
         if self.bot.get_cog("Gambling"):
             casino_commands = [
-                "`.coinflip` - Cara o cruz",
-                "`.dice` - Lanza dados",
-                "`.slots` - Tragamonedas",
-                "`.blackjack` - Blackjack 21",
+                "`.coinflip` - Cara/cruz",
+                "`.dice` - Dados",
+                "`.slots` - Slots",
+                "`.blackjack` - 21",
                 "`.roulette` - Ruleta",
-                "`.scratch` - Rasca y gana",
-                "`.crash` - Juego crash",
+                "`.scratch` - Raspadita",
+                "`.crash` - Crash",
             ]
             embed.add_field(
                 name="🎰 Casino",
@@ -90,23 +100,11 @@ class HelpView(discord.ui.View):
                 inline=True
             )
         
-        if self.bot.get_cog("Crime"):
-            crime_commands = [
-                "`.rob` - Roba a otro",
-                "`.heist` - Atraco grande",
-                "`.wanted` - Tu búsqueda",
-            ]
-            embed.add_field(
-                name="🔫 Crimen",
-                value="\n".join(crime_commands),
-                inline=True
-            )
-        
         shop_commands = [
-            "`.tienda` - Ver tienda",
-            "`.comprar` - Comprar item",
-            "`.inventario` - Tu bolso",
-            "`.vender` - Vender item",
+            "`.tienda` - Ver items",
+            "`.comprar` - Comprar",
+            "`.inventario` - Ver bolso",
+            "`.vender` - Vender",
         ]
         embed.add_field(
             name="🛒 Tienda",
@@ -115,13 +113,13 @@ class HelpView(discord.ui.View):
         )
         
         rpg_commands = [
-            "`.rpg profile` - Tus stats",
-            "`.rpg missions` - Ver misiones",
-            "`.rpg mission` - Hacer mision",
-            "`.rpg boss` - Pelear boss",
-            "`.rpg heal` - Curarte",
-            "`.rpg abilities` - Habilidades",
-            "`.rpg buy_ability` - Comprar habilidad",
+            "`.rpg profile` - Stats",
+            "`.rpg missions` - Misiones",
+            "`.rpg mission` - Hacer",
+            "`.rpg boss` - Pelear",
+            "`.rpg heal` - Curar",
+            "`.rpg abilities` - Ver",
+            "`.rpg buy_ability` - Comprar",
         ]
         embed.add_field(
             name="⚔️ RPG",
@@ -129,13 +127,23 @@ class HelpView(discord.ui.View):
             inline=True
         )
         
+        extra_commands = [
+            "`.wanted` - Tu nivel",
+            "`.leaderboard` - Top users",
+        ]
         embed.add_field(
-            name="💡 Tip",
-            value="¡Escribe mensajes para ganar coins! Cada 100 mensajes +1000 bonus",
+            name="📊 Extra",
+            value="\n".join(extra_commands),
+            inline=True
+        )
+        
+        embed.add_field(
+            name="💡 Bonus",
+            value="Escribe mensajes = ganas coins automáticamente!\nCada 100 mensajes = +1000 bonus",
             inline=False
         )
         
-        embed.set_footer(text=f"Total comandos: {len(self.bot.commands)}")
+        embed.set_footer(text=f"Usa los botones para navegar | {len(self.bot.commands)} comandos")
         return embed
     
     def get_admin_embed(self):

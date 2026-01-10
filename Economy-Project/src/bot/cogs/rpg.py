@@ -434,6 +434,9 @@ class RPG(commands.Cog):
         user_data['rpg'] = stats
         db.update_user(str(ctx.author.id), user_data)
         
+        # GIF de victoria
+        gif_url = await self.tenor.get_gif('victory')
+        
         final_embed = discord.Embed(
             title="Misión Completada!",
             description=f"completaste {mission['name']}",
@@ -445,6 +448,9 @@ class RPG(commands.Cog):
         
         if level_up['leveled_up']:
             final_embed.add_field(name="Level Up!", value=f"subiste a level {level_up['new_level']}", inline=False)
+        
+        if gif_url:
+            final_embed.set_image(url=gif_url)
         
         await ctx.send(embed=final_embed)
     
@@ -562,12 +568,25 @@ class RPG(commands.Cog):
             db.update_user(str(ctx.author.id), user_data)
             
             reward = Abilities.apply_luck(str(ctx.author.id), boss['reward_money'])
-            result_msg = f"mataste a {boss['name']} papá\nganaste ${reward:,} y {boss['reward_xp']} XP"
+            
+            # GIF de victoria
+            gif_url = await self.tenor.get_gif('boss')
+            
+            result_embed = discord.Embed(
+                title=f"💀 {boss['name']} Derrotado!",
+                description=f"mataste a {boss['name']} papá",
+                color=discord.Color.gold()
+            )
+            result_embed.add_field(name="Dinero", value=f"${reward:,}", inline=True)
+            result_embed.add_field(name="XP", value=f"+{boss['reward_xp']}", inline=True)
             
             if level_up['leveled_up']:
-                result_msg += f"\nsubiste a level {level_up['new_level']}"
+                result_embed.add_field(name="Level Up!", value=f"subiste a level {level_up['new_level']}", inline=False)
             
-            await msg.edit(content=result_msg, view=None)
+            if gif_url:
+                result_embed.set_image(url=gif_url)
+            
+            await msg.edit(content=None, embed=result_embed, view=None)
         else:
             # perdiste
             stats = RPGStats.get_stats(str(ctx.author.id))
@@ -576,7 +595,20 @@ class RPG(commands.Cog):
             user_data['rpg'] = stats
             db.update_user(str(ctx.author.id), user_data)
             
-            await msg.edit(content=f"{boss['name']} te mato gg\nusa `.rpg heal` pa revivir (cuesta $500)", view=None)
+            # GIF de derrota
+            gif_url = await self.tenor.get_gif('defeat')
+            
+            defeat_embed = discord.Embed(
+                title="☠️ Fuiste Derrotado",
+                description=f"{boss['name']} te mato gg",
+                color=discord.Color.red()
+            )
+            defeat_embed.add_field(name="Heal", value="usa `.rpg heal` pa revivir (cuesta $500)", inline=False)
+            
+            if gif_url:
+                defeat_embed.set_image(url=gif_url)
+            
+            await msg.edit(content=None, embed=defeat_embed, view=None)
     
     @rpg.command(name="heal")
     async def heal(self, ctx):
