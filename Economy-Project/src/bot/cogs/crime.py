@@ -11,6 +11,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from core.database import db
+from utils.tenor_core import get_tenor
 
 class PoliceEncounterView(discord.ui.View):
     """botones pal encuentro con policia"""
@@ -33,7 +34,6 @@ class PoliceEncounterView(discord.ui.View):
         
         self.responded = True
         
-        # 60% chance de escapar
         if random.random() < 0.6:
             db.add_money(str(self.ctx.author.id), self.stolen, "wallet")
             embed = discord.Embed(
@@ -102,7 +102,7 @@ class PoliceEncounterView(discord.ui.View):
         
         self.responded = True
         
-        # 50% chance de exito
+        # 50% chance de exitear xd
         if random.random() < 0.5:
             db.add_money(str(self.ctx.author.id), self.stolen, "wallet")
             embed = discord.Embed(
@@ -166,7 +166,6 @@ class HeistDecisionView(discord.ui.View):
         
         self.responded = True
         
-        # 70% exito si sigue el plan
         if random.random() < 0.7:
             db.add_money(str(self.ctx.author.id), self.loot, "wallet")
             embed = discord.Embed(
@@ -233,8 +232,7 @@ class HeistDecisionView(discord.ui.View):
             return
         
         self.responded = True
-        
-        # pierdes poco dinero pero seguro
+
         loss = random.randint(200, 400)
         db.remove_money(str(self.ctx.author.id), loss, "wallet")
         
@@ -271,10 +269,56 @@ class HeistDecisionView(discord.ui.View):
                 pass
 
 class Crime(commands.Cog):
-    """Comandos de crimen y actividades ilegales"""
-    
     def __init__(self, bot):
         self.bot = bot
+        self.tenor = get_tenor()
+    
+    async def _agregar_gif(self, embed, categoria):
+        try:
+            gif_url = await self.tenor.get_gif(categoria)
+            if gif_url:
+                embed.set_image(url=gif_url)
+        except Exception as e:
+            print(f"[GIF FAIL] {categoria}: {e}")
+    
+    def _obtener_wanted(self, user_id):
+        datos = db.get_user(str(user_id))
+        return datos.get('wanted_level', 0)
+    
+    def _modificar_wanted(self, user_id, cantidad):
+        """modifica el wanted level del user"""
+        datos = db.get_user(str(user_id))
+        wanted_actual = datos.get('wanted_level', 0)
+        wanted_nuevo = max(0, wanted_actual + cantidad)
+        datos['wanted_level'] = wanted_nuevo
+        db.update_user(str(user_id), datos)
+        return wanted_nuevo
+    
+    def _calcular_nivel_wanted(self, wanted_points):
+        """calcula el nivel criminal basado en puntos"""
+        if wanted_points == 0:
+            return {"estrellas": 0, "nombre": "Limpio", "emoji": "⭐"}
+        elif wanted_points < 5:
+            return {"estrellas": 1, "nombre": "Sospechoso", "emoji": "⭐"}
+        elif wanted_points < 15:
+            return {"estrellas": 2, "nombre": "Delincuente", "emoji": "⭐⭐"}
+        elif wanted_points < 30:
+            return {"estrellas": 3, "nombre": "Criminal", "emoji": "⭐⭐⭐"}
+        elif wanted_points < 50:
+            return {"estrellas": 4, "nombre": "Fugitivo", "emoji": "⭐⭐⭐⭐"}
+        else:
+            return {"estrellas": 5, "nombre": "Enemigo Publico", "emoji": "⭐⭐⭐⭐⭐"}
+    
+    def _chance_policia_extra(self, wanted_points):
+        """calcula chance policia segun wanted"""
+        if wanted_points >= 50:
+            return 0.30
+        elif wanted_points >= 30:
+            return 0.20
+        elif wanted_points >= 15:
+            return 0.10
+        else:
+            return 0.05
     
     @commands.command(name="search", aliases=["buscar"])
     @commands.cooldown(1, 300, commands.BucketType.user)
@@ -299,11 +343,14 @@ class Crime(commands.Cog):
         
         jackpot = random.random() < 0.08
         nothing = random.random() < 0.15 and not jackpot
-        cops = random.random() < 0.1
+        
+        wanted_level = self._obtener_wanted(ctx.author.id)
+        cops = random.random() < (0.1 + self._chance_policia_extra(wanted_level))
         
         if cops and not jackpot:
             fine = random.randint(100, 300)
             db.remove_money(str(ctx.author.id), fine, "wallet")
+            self._modificar_wanted(ctx.author.id, 1)
             messages = [
                 f"la policia te paro buscando en {place['name']}, multa ${fine:,}",
                 f"guardias de seguridad te cacharon, pagas ${fine:,}",
@@ -337,7 +384,20 @@ class Crime(commands.Cog):
             ]
         
         db.add_money(str(ctx.author.id), found, "wallet")
-        await ctx.send(f"{ctx.author.mention}, {random.choice(messages)}")
+        
+        try:
+            gif_url = await self.tenor.get_gif('treasure' if jackpot else 'money')
+            if gif_url:
+                embed = discord.Embed(
+                    description=f"{ctx.author.mention}, {random.choice(messages)}",
+                    color=discord.Color.gold() if jackpot else discord.Color.green()
+                )
+                embed.set_image(url=gif_url)
+                await ctx.send(embed=embed)
+            else:
+                await ctx.send(f"{ctx.author.mention}, {random.choice(messages)}")
+        except Exception:
+            await ctx.send(f"{ctx.author.mention}, {random.choice(messages)}")
     
     @commands.command(name="rob", aliases=["robar"])
     async def rob(self, ctx, target: discord.Member = None):
@@ -376,7 +436,7 @@ class Crime(commands.Cog):
         fine = min(500, int(target_wallet * 0.3))
         
         if robber_wallet < fine:
-            await ctx.send(f"❌ Necesitas al menos ${fine:,} en tu wallet para intentar robar (para pagar la multa si fallas)")
+            await ctx.send(f" Necesitas al menos ${fine:,} en tu wallet para intentar robar (para pagar la multa si fallas)")
             return
         
         success_chance = 0.40
@@ -395,7 +455,11 @@ class Crime(commands.Cog):
         if success:
             stolen = random.randint(int(target_wallet * 0.1), int(target_wallet * 0.3))
             
-            police_event = random.random() < 0.25 and not perfect_heist
+            self._modificar_wanted(ctx.author.id, 2)
+            
+            wanted_level = self._obtener_wanted(ctx.author.id)
+            chance_extra = self._chance_policia_extra(wanted_level)
+            police_event = random.random() < (0.25 + chance_extra) and not perfect_heist
             
             if police_event:
                 embed = discord.Embed(
@@ -417,61 +481,106 @@ class Crime(commands.Cog):
                     color=discord.Color.green()
                 )
                 embed.add_field(name="Cantidad robada", value=f"${stolen:,}", inline=True)
+                embed.add_field(name="Wanted", value="+2 puntos", inline=True)
                 
                 if perfect_heist:
                     embed.set_footer(text="Robo perfecto! Sin testigos")
                 else:
                     embed.set_footer(text="Nadie te vio... por ahora")
                 
-                # quitar el dinero de la victima aqui
                 db.remove_money(str(target.id), stolen, "wallet")
+                
+                try:
+                    gif_url = await self.tenor.get_gif('robbery')
+                    if gif_url:
+                        embed.set_image(url=gif_url)
+                except Exception:
+                    pass
                 
                 await ctx.send(embed=embed)
         else:
             db.remove_money(str(ctx.author.id), fine, "wallet")
             
+            self._modificar_wanted(ctx.author.id, 3)
+            
             embed = discord.Embed(
-                title="🚨 Robo Fallido",
+                title="Robo Fallido",
                 description=f"{ctx.author.mention} intento robar a {target.mention} pero fallo!",
                 color=discord.Color.red()
             )
             embed.add_field(name="Multa pagada", value=f"${fine:,}", inline=True)
+            embed.add_field(name="Wanted", value="+3 puntos", inline=True)
             
             if cops_nearby:
-                embed.set_footer(text="Habia policias cerca. F")
+                embed.set_footer(text="Habia policias cerca")
             else:
                 embed.set_footer(text="Te cacharon in fraganti")
+            
+            try:
+                gif_url = await self.tenor.get_gif('police')
+                if gif_url:
+                    embed.set_image(url=gif_url)
+            except Exception:
+                pass
             
             await ctx.send(embed=embed)
     
     @commands.command(name="wanted", aliases=["buscado"])
     async def wanted(self, ctx, member: discord.Member = None):
-        """
-        Ver el nivel de búsqueda de un usuario
-        
-        Sistema de wanted level (futuro)
-        Por ahora muestra estadísticas básicas.
-        """
+        """Ver el nivel criminal de un usuario"""
         target = member or ctx.author
-        user_data = db.get_user(str(target.id))
+        datos = db.get_user(str(target.id))
         
-        # por ahora solo mostruestra info basica luego lo ampliaré con el otro commit
+        wanted_points = datos.get('wanted_level', 0)
+        nivel = self._calcular_nivel_wanted(wanted_points)
+        
+        if wanted_points >= 30:
+            color = discord.Color.dark_red()
+        elif wanted_points >= 15:
+            color = discord.Color.red()
+        elif wanted_points >= 5:
+            color = discord.Color.orange()
+        else:
+            color = discord.Color.blue()
         
         embed = discord.Embed(
-            title=f"👮 Estado Criminal de {target.display_name}",
-            color=discord.Color.blue()
+            title=f"Estado Criminal de {target.display_name}",
+            color=color
         )
         embed.set_thumbnail(url=target.display_avatar.url)
         
-        # info basica
-        wallet = user_data.get('wallet', 0)
-        bank = user_data.get('bank', 0)
+        wallet = datos.get('wallet', 0)
+        bank = datos.get('bank', 0)
         
-        embed.add_field(name="💵 Wallet", value=f"${wallet:,}", inline=True)
-        embed.add_field(name="🏦 Bank", value=f"${bank:,}", inline=True)
-        embed.add_field(name="⭐ Wanted Level", value="⭐ (Limpio)", inline=False)
+        embed.add_field(name="Wallet", value=f"${wallet:,}", inline=True)
+        embed.add_field(name="Bank", value=f"${bank:,}", inline=True)
+        embed.add_field(
+            name="Wanted Level",
+            value=f"{nivel['emoji']} {nivel['nombre']} ({wanted_points} puntos)",
+            inline=False
+        )
         
-        embed.set_footer(text="Sistema de wanted en desarrollo")
+        if wanted_points > 0:
+            tiempo_reduccion = int((wanted_points * 30) / 60)
+            embed.add_field(
+                name="Reduccion Natural",
+                value=f"Los puntos bajan 1 cada 30 min (quedan ~{tiempo_reduccion}h)",
+                inline=False
+            )
+            
+            chance_policia = int(self._chance_policia_extra(wanted_points) * 100)
+            embed.add_field(
+                name="Consecuencias",
+                value=f"+{chance_policia}% de chance policia en crimenes",
+                inline=False
+            )
+        
+        try:
+            gif_url = await self.tenor.get_gif('police' if wanted_points > 0 else 'win')
+            if gif_url:
+                embed.set_image(url=gif_url)
+        except Exception:
+            pass
         
         await ctx.send(embed=embed)
     
@@ -539,24 +648,44 @@ class Crime(commands.Cog):
             loot = random.randint(target['min'], target['max'])
             db.add_money(str(ctx.author.id), loot, "wallet")
             
+            self._modificar_wanted(ctx.author.id, 5)
+            
             embed.color = discord.Color.green()
-            embed.add_field(name=" Éxito!", value=f"Robaste ${loot:,}", inline=False)
+            embed.add_field(name="Exito!", value=f"Robaste ${loot:,}", inline=False)
+            embed.add_field(name="Wanted", value="+5 puntos", inline=True)
             
             if informant:
-                embed.set_footer(text="Un informante te ayudo. Nice")
+                embed.set_footer(text="Un informante te ayudo")
             else:
                 embed.set_footer(text="Atraco limpio")
+            
+            try:
+                gif_url = await self.tenor.get_gif('explosion')
+                if gif_url:
+                    embed.set_image(url=gif_url)
+            except Exception:
+                pass
         else:
             fine = random.randint(500, 1500)
             db.remove_money(str(ctx.author.id), fine, "wallet")
             
+            self._modificar_wanted(ctx.author.id, 7)
+            
             embed.color = discord.Color.red()
-            embed.add_field(name=" Fracaso", value=f"Multa: ${fine:,}", inline=False)
+            embed.add_field(name="Fracaso", value=f"Multa: ${fine:,}", inline=False)
+            embed.add_field(name="Wanted", value="+7 puntos", inline=True)
             
             if ambush:
                 embed.set_footer(text="Era una trampa! Te emboscaron")
             else:
-                embed.set_footer(text="Algo salió mal")
+                embed.set_footer(text="Algo salio mal")
+            
+            try:
+                gif_url = await self.tenor.get_gif('police')
+                if gif_url:
+                    embed.set_image(url=gif_url)
+            except Exception:
+                pass
         
         await ctx.send(embed=embed)
 

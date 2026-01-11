@@ -27,7 +27,7 @@ class RPGStats:
             user_data['rpg'] = {
                 'level': 1,
                 'xp': 0,
-                'hp': 100,
+                'hp': 100, 
                 'max_hp': 100,
                 'attack': 10,
                 'defense': 5,
@@ -75,7 +75,7 @@ class MissionData:
     MISSIONS = {
         'bandits': {
             'name': 'Pelear Bandidos',
-            'desc': 'hay unos bandidos jodiendo en el pueblo, anda y pegales',
+            'desc': 'hay unos bandidos rompiendo las bolas en el pueblo, anda y pegales',
             'min_level': 1,
             'reward_money': 500,
             'reward_xp': 50,

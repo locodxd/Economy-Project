@@ -1,13 +1,11 @@
-"""
-Sistema de ayuda mejorado - Comando de ayuda personalizado con información detallada, esto es lo más facil de usar y entender.
-"""
+# sistema de ayuda personalizado, hecho por un pibe que no duerme XD
 
 import discord
 from discord.ext import commands
 from typing import Optional
 
 class HelpView(discord.ui.View):
-    """Vista con botones para el comando help"""
+    # vista de los botones, si tocas algo aca seguro se rompe XD
     
     def __init__(self, ctx, bot):
         super().__init__(timeout=120)
@@ -15,131 +13,108 @@ class HelpView(discord.ui.View):
         self.bot = bot
         self.message = None
     
-    @discord.ui.button(label="🏠 Home", style=discord.ButtonStyle.primary, custom_id="help_home")
+    @discord.ui.button(label="Home", style=discord.ButtonStyle.primary, custom_id="help_home")
     async def home_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        """Botón para mostrar ayuda general"""
         if interaction.user.id != self.ctx.author.id:
-            await interaction.response.send_message("❌ Solo quien usó el comando puede usar estos botones.", ephemeral=True)
+            await interaction.response.send_message("Eh, vos no sos el que puso el comando. No toques.", ephemeral=True)
             return
         
         embed = self.get_home_embed()
         await interaction.response.edit_message(embed=embed, view=self)
     
-    @discord.ui.button(label="👑 Admin", style=discord.ButtonStyle.danger, custom_id="help_admin")
+    @discord.ui.button(label="Admin", style=discord.ButtonStyle.danger, custom_id="help_admin")
     async def admin_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        """Botón para mostrar comandos admin"""
         if interaction.user.id != self.ctx.author.id:
-            await interaction.response.send_message("❌ Solo quien usó el comando puede usar estos botones.", ephemeral=True)
+            await interaction.response.send_message("No podes tocar esto si no sos vos el dueño del comando.", ephemeral=True)
             return
         
         if not interaction.user.guild_permissions.administrator:
-            await interaction.response.send_message("❌ Necesitas permisos de administrador para ver estos comandos.", ephemeral=True)
+            await interaction.response.send_message("No tenes permisos de admin jefe, no te hagas el vivo.", ephemeral=True)
             return
         
         embed = self.get_admin_embed()
         await interaction.response.edit_message(embed=embed, view=self)
     
-    @discord.ui.button(label="⚔️ RPG", style=discord.ButtonStyle.success, custom_id="help_rpg")
+    @discord.ui.button(label="RPG", style=discord.ButtonStyle.success, custom_id="help_rpg")
     async def rpg_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        """Botón para mostrar comandos RPG"""
         if interaction.user.id != self.ctx.author.id:
-            await interaction.response.send_message("❌ Solo quien usó el comando puede usar estos botones.", ephemeral=True)
+            await interaction.response.send_message("Eh, deja de tocar lo que no es tuyo.", ephemeral=True)
             return
         
         embed = self.get_rpg_embed()
         await interaction.response.edit_message(embed=embed, view=self)
     
     def get_home_embed(self):
-        """Genera el embed de ayuda general"""
         embed = discord.Embed(
-            title="💰 Sistema de Economía",
-            description="Usa `.help <comando>` para info detallada sobre un comando específico",
+            title="Sistema de Economia",
+            description="Pone `.help <comando>` si queres ver que hace cada cosa",
             color=discord.Color.gold()
         )
         
-        basic_commands = [
-            "`.daily` - Recompensa diaria",
-            "`.weekly` - Recompensa semanal",
-            "`.work` - Trabaja y gana",
-            "`.balance` - Ver dinero",
-            "`.deposit` - Al banco",
-            "`.withdraw` - Del banco",
-            "`.transfer` - Enviar dinero",
-        ]
         embed.add_field(
-            name="💵 Básicos",
-            value="\n".join(basic_commands),
+            name="Basicos",
+            value="\n".join([
+                "`.daily` - Tu regalo diario",
+                "`.weekly` - Tu regalo semanal",
+                "`.work` - A laburar",
+                "`.balance` - Cuanta plata tenes",
+                "`.deposit` - Guardar en el banco",
+                "`.withdraw` - Sacar del banco",
+                "`.transfer` - Mandarle plata a alguien",
+            ]),
             inline=True
         )
         
-        earn_commands = [
-            "`.beg` - Mendiga",
-            "`.search` - Busca dinero",
-            "`.rob` - Roba usuario",
-            "`.heist` - Atraco grande",
-        ]
         embed.add_field(
-            name="💸 Ganar Dinero",
-            value="\n".join(earn_commands),
+            name="Ganar Guita",
+            value="\n".join([
+                "`.beg` - Mendigar un poco",
+                "`.search` - Buscar algo por ahi",
+                "`.rob` - Robarle a alguien (ojo)",
+                "`.heist` - Un golpe grande",
+            ]),
             inline=True
         )
         
         if self.bot.get_cog("Gambling"):
-            casino_commands = [
-                "`.coinflip` - Cara/cruz",
-                "`.dice` - Dados",
-                "`.slots` - Slots",
-                "`.blackjack` - 21",
-                "`.roulette` - Ruleta",
-                "`.scratch` - Raspadita",
-                "`.crash` - Crash",
-            ]
             embed.add_field(
-                name="🎰 Casino",
-                value="\n".join(casino_commands),
+                name="Casino",
+                value="\n".join([
+                    "`.coinflip` - Cara o cruz",
+                    "`.dice` - Los daditos",
+                    "`.slots` - Tragamonedas",
+                    "`.blackjack` - El 21",
+                    "`.roulette` - La ruleta",
+                    "`.scratch` - Raspadita",
+                    "`.crash` - El crash loco",
+                ]),
                 inline=True
             )
         
-        shop_commands = [
-            "`.tienda` - Ver items",
-            "`.comprar` - Comprar",
-            "`.inventario` - Ver bolso",
-            "`.vender` - Vender",
-        ]
         embed.add_field(
-            name="🛒 Tienda",
-            value="\n".join(shop_commands),
-            inline=True
-        )
-        
-        rpg_commands = [
-            "`.rpg profile` - Stats",
-            "`.rpg missions` - Misiones",
-            "`.rpg mission` - Hacer",
-            "`.rpg boss` - Pelear",
-            "`.rpg heal` - Curar",
-            "`.rpg abilities` - Ver",
-            "`.rpg buy_ability` - Comprar",
-        ]
-        embed.add_field(
-            name="⚔️ RPG",
-            value="\n".join(rpg_commands),
-            inline=True
-        )
-        
-        extra_commands = [
-            "`.wanted` - Tu nivel",
-            "`.leaderboard` - Top users",
-        ]
-        embed.add_field(
-            name="📊 Extra",
-            value="\n".join(extra_commands),
+            name="Tienda",
+            value="\n".join([
+                "`.tienda` - Ver que hay",
+                "`.comprar` - Comprar algo",
+                "`.inventario` - Tu bolso",
+                "`.vender` - Vender tus cosas",
+            ]),
             inline=True
         )
         
         embed.add_field(
-            name="💡 Bonus",
-            value="Escribe mensajes = ganas coins automáticamente!\nCada 100 mensajes = +1000 bonus",
+            name="Extra",
+            value="\n".join([
+                "`.wanted` - Que tan buscado estas",
+                "`.aura` - Ver tu aura",
+                "`.leaderboard` - El top de los mejores",
+            ]),
+            inline=True
+        )
+        
+        embed.add_field(
+            name="Bonus",
+            value="Si escribis mensajes vas ganando guita solo\nCada 100 mensajes te llevas un bonus de +1000",
             inline=False
         )
         
@@ -147,87 +122,75 @@ class HelpView(discord.ui.View):
         return embed
     
     def get_admin_embed(self):
-        """Genera el embed de comandos admin"""
         embed = discord.Embed(
-            title="👑 Comandos de Administrador",
-            description="Comandos exclusivos para administradores del servidor.",
+            title="Comandos de Admin",
+            description="Cosas privadas de los jefes.",
             color=discord.Color.red()
         )
         
-        admin_commands = [
-            "`/aeco_set` - Establecer dinero de usuario",
-            "`/aeco_reset` - Resetear usuario",
-            "`/aeco_add` - Añadir dinero",
-            "`/aeco_remove` - Quitar dinero",
-            "`/aeco_tienda` - Añadir item a la tienda",
-            "`/aeco_info` - Ver info de usuario",
-            "",
-            "**Configuración del sistema:**",
-            "`.setmilestone <cantidad>` - Cambiar recompensa por milestone",
-            "`.setinterval <número>` - Cambiar intervalo de mensajes para milestone",
-        ]
-        
         embed.add_field(
-            name="📋 Comandos Disponibles",
-            value="\n".join(admin_commands),
+            name="Comandos",
+            value="\n".join([
+                "`/aeco_set` - Setear guita",
+                "`/aeco_reset` - Resetear todo",
+                "`/aeco_add` - Dar guita",
+                "`/aeco_remove` - Quitar guita",
+                "`/aeco_tienda` - Meter item a la tienda",
+                "`/aeco_info` - Ver todo del user",
+                "",
+                "**Otras cosas:**",
+                "`.setmilestone <cantidad>` - Cambiar premio milestone",
+                "`.setinterval <num>` - Cambiar cada cuanto el premio",
+            ]),
             inline=False
         )
-        
-        embed.set_footer(text="Usa los comandos slash (/) para los comandos de economía")
         return embed
     
     def get_rpg_embed(self):
-        """Genera el embed de comandos RPG"""
         embed = discord.Embed(
-            title="⚔️ Sistema RPG",
-            description="Haz misiones, pelea bosses y mejora tus habilidades",
+            title="Sistema RPG",
+            description="Misiones, bosses y mejoras para el personaje",
             color=discord.Color.purple()
         )
         
-        profile_commands = [
-            "`.rpg profile` - Ver tus stats",
-            "`.rpg missions` - Ver misiones",
-        ]
         embed.add_field(
-            name="📊 Info",
-            value="\n".join(profile_commands),
-            inline=True
-        )
-        
-        mission_commands = [
-            "`.rpg mission <id>` - Hacer misión",
-            "`.rpg boss <id>` - Pelear boss",
-            "`.rpg heal` - Curarte/Revivir",
-        ]
-        embed.add_field(
-            name="⚡ Acción",
-            value="\n".join(mission_commands),
-            inline=True
-        )
-        
-        ability_commands = [
-            "`.rpg abilities` - Ver habilidades",
-            "`.rpg buy_ability <id>` - Comprar",
-        ]
-        embed.add_field(
-            name="✨ Habilidades",
-            value="\n".join(ability_commands),
+            name="Info",
+            value="\n".join([
+                "`.rpg profile` - Tus stats",
+                "`.rpg missions` - Ver misiones",
+            ]),
             inline=True
         )
         
         embed.add_field(
-            name="💡 Habilidades disponibles",
-            value="**luck** - 15% más dinero\n**grind** - Cooldowns 20% rápido\n**crit** - Crítico 20%\n**tank** - 20% menos daño",
+            name="Accion",
+            value="\n".join([
+                "`.rpg mission <id>` - Hacer una mision",
+                "`.rpg boss <id>` - Ir contra un boss",
+                "`.rpg heal` - Curarte (o revivir)",
+            ]),
+            inline=True
+        )
+        
+        embed.add_field(
+            name="Habilidades",
+            value="\n".join([
+                "`.rpg abilities` - Ver skills",
+                "`.rpg buy_ability <id>` - Comprar skill",
+            ]),
+            inline=True
+        )
+        
+        embed.add_field(
+            name="Skills que podes tener",
+            value="**luck** - +15% guita\n**grind** - Cooldowns mas rapidos\n**crit** - Golpes criticos\n**tank** - Aguantas mas golpes",
             inline=False
         )
-        
         return embed
     
     async def on_timeout(self):
-        """Deshabilitar botones al expirar"""
         for item in self.children:
             item.disabled = True
-        
         if self.message:
             try:
                 await self.message.edit(view=self)
@@ -235,76 +198,60 @@ class HelpView(discord.ui.View):
                 pass
 
 class HelpCommand(commands.Cog):
-    """Sistema de ayuda personalizado"""
+    # sistema de ayuda, no lo rompas porfa que costo un huevo XD
     
     def __init__(self, bot):
         self.bot = bot
     
     @commands.command(name="help", aliases=["ayuda", "h"])
     async def help_command(self, ctx, comando: Optional[str] = None):
-        """
-        Muestra ayuda sobre los comandos
-        
-        Usa .help para ver todos los comandos
-        Usa .help <comando> para información detallada
-        """
         if comando:
-            # Ayuda de comando específico
             cmd = self.bot.get_command(comando)
-            if cmd:
-                embed = discord.Embed(
-                    title=f"📖 Ayuda: {cmd.name}",
-                    description=cmd.help or "Sin descripción",
-                    color=discord.Color.blue()
+            if not cmd:
+                return await ctx.send(f"No encontre el comando `{comando}` bro")
+            
+            embed = discord.Embed(
+                title=f"Ayuda: {cmd.name}",
+                description=cmd.help or "No tiene descripcion este comando",
+                color=discord.Color.blue()
+            )
+            
+            if cmd.aliases:
+                embed.add_field(
+                    name="Aliases",
+                    value=", ".join(f"`{alias}`" for alias in cmd.aliases),
+                    inline=False
                 )
-                
-                # Aliases
-                if cmd.aliases:
-                    embed.add_field(
-                        name="📝 Aliases",
-                        value=", ".join(f"`{alias}`" for alias in cmd.aliases),
-                        inline=False
-                    )
-                
-                # Uso
-                usage = f".{cmd.name}"
-                if cmd.signature:
-                    usage += f" {cmd.signature}"
-                embed.add_field(name="💡 Uso", value=f"`{usage}`", inline=False)
-                
-                await ctx.send(embed=embed)
-            else:
-                await ctx.send(f"❌ No se encontró el comando `{comando}`")
+            
+            usage = f".{cmd.name} {cmd.signature}" if cmd.signature else f".{cmd.name}"
+            embed.add_field(name="Uso", value=f"`{usage}`", inline=False)
+            await ctx.send(embed=embed)
         else:
-            # Ayuda general con botones
             view = HelpView(ctx, self.bot)
-            embed = view.get_home_embed()
-            message = await ctx.send(embed=embed, view=view)
-            view.message = message
+            view.message = await ctx.send(embed=view.get_home_embed(), view=view)
     
     @commands.command(name="setmilestone")
     @commands.has_permissions(administrator=True)
     async def set_milestone_reward(self, ctx, cantidad: int):
-        """Establecer la recompensa por milestone de mensajes"""
         if cantidad < 0:
-            await ctx.send("❌ La cantidad debe ser positiva")
+            await ctx.send("La guita tiene que ser positiva pa")
             return
         
         from bot.config import ECONOMY_CONFIG
         ECONOMY_CONFIG['milestone_reward'] = cantidad
-        await ctx.send(f"✅ Recompensa por milestone establecida en **{cantidad:,} coins**")
+        await ctx.send(f"Listo, ahora el premio por milestone es de **{cantidad:,} coins**")
     
     @commands.command(name="setinterval")
     @commands.has_permissions(administrator=True)
     async def set_milestone_interval(self, ctx, intervalo: int):
-        """Establecer cada cuántos mensajes se da la recompensa milestone"""
         if intervalo < 1:
-            await ctx.send("❌ El intervalo debe ser mayor a 0")
+            await ctx.send("Pone un numero mayor a 0 che")
             return
         
         from bot.config import ECONOMY_CONFIG
         ECONOMY_CONFIG['milestone_interval'] = intervalo
-        await ctx.send(f"✅ Intervalo de milestone establecido en **cada {intervalo} mensajes**")
+        await ctx.send(f"Ahora dan premio cada **{intervalo} mensajes**")
 
 async def setup(bot):
+    # esto es para cargar el modulo, no tocar XD
     await bot.add_cog(HelpCommand(bot))

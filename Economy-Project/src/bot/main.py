@@ -244,8 +244,14 @@ async def on_command_error(ctx, error):
         logger.debug(f'Argumento inválido en {ctx.command}: {error}')
         await ctx.send(f"Argumento inválido. Usa `{PREFIX}help {ctx.command}` para más información.")
     elif isinstance(error, commands.CommandOnCooldown):
-        logger.debug(f'Cooldown para {ctx.author} en {ctx.command}: {error.retry_after:.1f}s')
-        await ctx.send(f"Este comando está en cooldown. Intenta de nuevo en {error.retry_after:.1f}s")
+        retry = int(error.retry_after)
+        mins, secs = divmod(retry, 60)
+        if mins > 0:
+            time_str = f"{mins}m {secs}s"
+        else:
+            time_str = f"{secs}s"
+        logger.debug(f'Cooldown para {ctx.author} en {ctx.command}: {time_str}')
+        await ctx.send(f"Este comando está en cooldown. Intenta de nuevo en {time_str}")
     elif isinstance(error, commands.CheckFailure):
         logger.debug(f'Check falló para {ctx.command}: {error}')
     else:

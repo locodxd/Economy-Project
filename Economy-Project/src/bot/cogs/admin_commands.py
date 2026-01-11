@@ -1,5 +1,5 @@
 """
-Comandos de administración - Slash commands exclusivos para administradores del servidor
+Comandos de administración de economía
 """
 
 import discord
@@ -110,14 +110,14 @@ class AdminCommands(commands.Cog):
         """
         if tipo not in ["wallet", "bank"]:
             await interaction.response.send_message(
-                "❌ El tipo debe ser 'wallet' o 'bank'",
+                " El tipo debe ser 'wallet' o 'bank'",
                 ephemeral=True
             )
             return
         
         if cantidad <= 0:
             await interaction.response.send_message(
-                "❌ La cantidad debe ser positiva",
+                " Bro la cantidad debe ser positiva",
                 ephemeral=True
             )
             return
@@ -152,14 +152,14 @@ class AdminCommands(commands.Cog):
         """
         if tipo not in ["wallet", "bank"]:
             await interaction.response.send_message(
-                "❌ El tipo debe ser 'wallet' o 'bank'",
+                " El tipo debe ser 'wallet' o 'bank'",
                 ephemeral=True
             )
             return
         
         if cantidad <= 0:
             await interaction.response.send_message(
-                "❌ La cantidad debe ser positiva",
+                " Bro la cantidad debe ser positiva",
                 ephemeral=True
             )
             return
@@ -176,7 +176,7 @@ class AdminCommands(commands.Cog):
             await interaction.response.send_message(embed=embed)
         else:
             await interaction.response.send_message(
-                f"❌ {usuario.mention} no tiene suficiente dinero en su {tipo}",
+                f" {usuario.mention} no tiene suficiente dinero en su {tipo}",
                 ephemeral=True
             )
     

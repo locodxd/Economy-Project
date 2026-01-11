@@ -39,7 +39,7 @@ class JSONDatabase:
                 self._backup()
                 return {}
             except Exception as e:
-                logger.error(f"Error inesperado, asi como mi vida al cargar datos: {e}")
+                logger.error(f"Error cargando datos: {e}")
                 return {}
         else:
             logger.warning(f'Archivo de base de datos no existe, se creará uno nuevo')

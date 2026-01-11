@@ -103,17 +103,47 @@ def configure_bot():
     
     config['tenor_token'] = get_input("2. Token de Tenor API", optional=True)
     
+    # Preguntar si es bot publico o privado
+    print(f"\n{Colors.CYAN}═══ MODO DEL BOT ═══{Colors.ENDC}\n")
+    print(f"{Colors.YELLOW}Bot Publico:{Colors.ENDC} Funciona en cualquier servidor, base de datos separada por servidor")
+    print(f"{Colors.YELLOW}Bot Privado:{Colors.ENDC} Solo funciona en servidores específicos, base de datos global")
+    modo_publico = input(f"\n¿Tu bot es publico? (s/n): {Colors.ENDC}").lower() == 's'
+    config['modo_publico'] = modo_publico
+    
     # Owner Role
     print(f"\n{Colors.CYAN}═══ ROLES Y PERMISOS ═══{Colors.ENDC}\n")
-    config['owner_role'] = get_input("3. ID del Rol de Owner")
     
-    # Admin User IDs
-    config['admin_user_ids'] = get_input("4. IDs de usuarios administradores", multiline=True)
+    if modo_publico:
+        print(f"{Colors.YELLOW}Modo publico: Solo necesitas IDs de usuarios admin{Colors.ENDC}\n")
+        config['owner_role'] = None
+        config['admin_user_ids'] = get_input("3. IDs de usuarios administradores (pueden usar comandos admin)", multiline=True)
+        config['allowed_servers'] = None
+    else:
+        config['owner_role'] = get_input("3. ID del Rol de Owner")
+        config['admin_user_ids'] = get_input("4. IDs de usuarios administradores", multiline=True)
+        
+        # Servidores permitidos solo en modo privado
+        print(f"\n{Colors.CYAN}═══ CONTROL DE SERVIDORES ===({Colors.ENDC}\n")
+        print(f"{Colors.YELLOW}Si el bot se une a un servidor no autorizado, se saldrá automáticamente.{Colors.ENDC}\n")
+        config['allowed_servers'] = get_input("5. IDs de servidores permitidos", multiline=True)
     
-    # Servidores permitidos
-    print(f"\n{Colors.CYAN}═══ CONTROL DE SERVIDORES ═══{Colors.ENDC}\n")
-    print(f"{Colors.YELLOW}Si el bot se une a un servidor no autorizado, se saldrá automáticamente.{Colors.ENDC}\n")
-    config['allowed_servers'] = get_input("5. IDs de servidores permitidos", multiline=True)
+    # Tenor keys multiples (opcional)
+    print(f"\n{Colors.CYAN}═══ TENOR API AVANZADO (OPCIONAL) ===({Colors.ENDC}\n")
+    print(f"{Colors.YELLOW}Puedes agregar múltiples API keys de Tenor para fallback{Colors.ENDC}")
+    print(f"{Colors.YELLOW}Si una key falla, usará la siguiente automáticamente{Colors.ENDC}\n")
+    extra_tenor = input(f"¿Agregar mas Tenor API keys? (s/n): {Colors.ENDC}").lower()
+    
+    if extra_tenor == 's':
+        tenor_keys = [config['tenor_token']] if config.get('tenor_token') else []
+        print(f"\n{Colors.GREEN}Ingresa keys adicionales (presiona Enter sin escribir para terminar){Colors.ENDC}")
+        while True:
+            extra_key = get_input(f"Tenor API Key #{len(tenor_keys) + 1}", optional=True)
+            if not extra_key:
+                break
+            tenor_keys.append(extra_key)
+        config['tenor_keys'] = tenor_keys if len(tenor_keys) > 1 else None
+    else:
+        config['tenor_keys'] = None
     
     # Canales de comandos por servidor
     print(f"\n{Colors.CYAN}═══ CANALES DE COMANDOS (OPCIONAL) ═══{Colors.ENDC}\n")
@@ -136,9 +166,17 @@ def configure_bot():
 def save_config(config):
     """Guarda la configuración en archivos"""
     
-    # Crear .env
+    # Crear .env con soporte para multiples tenor keys
     env_content = f"DISCORD_TOKEN={config['discord_token']}\n"
-    if config.get('tenor_token'):
+    
+    # si hay multiple tenor keys, guardarlas todas
+    if config.get('tenor_keys'):
+        for i, key in enumerate(config['tenor_keys']):
+            if i == 0:
+                env_content += f"TENOR_API_KEY={key}\n"
+            else:
+                env_content += f"TENOR_API_KEY_{i}={key}\n"
+    elif config.get('tenor_token'):
         env_content += f"TENOR_API_KEY={config['tenor_token']}\n"
     
     with open('.env', 'w', encoding='utf-8') as f:
@@ -146,10 +184,12 @@ def save_config(config):
     
     # Crear bot_config.json
     bot_config = {
+        "modo_publico": config.get('modo_publico', False),
         "owner_role": config.get('owner_role'),
         "admin_user_ids": config.get('admin_user_ids', []),
         "allowed_servers": config.get('allowed_servers', []),
-        "command_channels": config.get('command_channels', {})
+        "command_channels": config.get('command_channels', {}),
+        "tenor_fallback_keys": config.get('tenor_keys', []) if config.get('tenor_keys') else None
     }
     
     config_dir = Path('config')
@@ -166,11 +206,21 @@ def show_summary(config):
     print(f"║              RESUMEN DE CONFIGURACIÓN                     ║")
     print(f"╚════════════════════════════════════════════════════════════╝{Colors.ENDC}\n")
     
+    print(f"{Colors.BOLD}Modo:{Colors.ENDC} {'Publico (multi-servidor)' if config.get('modo_publico') else 'Privado (servidores especificos)'}")
     print(f"{Colors.BOLD}Token Discord:{Colors.ENDC} {'*' * 20}...{config['discord_token'][-10:]}")
-    print(f"{Colors.BOLD}Token Tenor:{Colors.ENDC} {config.get('tenor_token', 'No configurado')[:20]}..." if config.get('tenor_token') else f"{Colors.BOLD}Token Tenor:{Colors.ENDC} No configurado")
-    print(f"{Colors.BOLD}Owner Role:{Colors.ENDC} {config.get('owner_role', 'No configurado')}")
+    
+    if config.get('tenor_keys'):
+        print(f"{Colors.BOLD}Tenor Keys:{Colors.ENDC} {len(config['tenor_keys'])} keys configuradas (con fallback)")
+    elif config.get('tenor_token'):
+        print(f"{Colors.BOLD}Token Tenor:{Colors.ENDC} {config.get('tenor_token')[:20]}...")
+    else:
+        print(f"{Colors.BOLD}Token Tenor:{Colors.ENDC} No configurado")
+    
+    if not config.get('modo_publico'):
+        print(f"{Colors.BOLD}Owner Role:{Colors.ENDC} {config.get('owner_role', 'No configurado')}")
+        print(f"{Colors.BOLD}Servidores Permitidos:{Colors.ENDC} {len(config.get('allowed_servers', []))} servidor(es)")
+    
     print(f"{Colors.BOLD}Admin Users:{Colors.ENDC} {len(config.get('admin_user_ids', []))} usuario(s)")
-    print(f"{Colors.BOLD}Servidores Permitidos:{Colors.ENDC} {len(config.get('allowed_servers', []))} servidor(es)")
     print(f"{Colors.BOLD}Canales Configurados:{Colors.ENDC} {len(config.get('command_channels', {}))} servidor(es)")
     
     print(f"\n{Colors.YELLOW}Archivos creados:{Colors.ENDC}")

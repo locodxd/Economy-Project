@@ -1,4 +1,4 @@
-# admin.py no testeado aún - módulo para comandos administrativos del bot de Discord
+# admin.py no testeado aún - módulo para comandos administrativos del bot de Discord, implementación futura
 from discord.ext import commands
 
 class Admin(commands.Cog):
