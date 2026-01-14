@@ -1,10 +1,20 @@
 from discord.ext import commands
 import random
 
+class MessageContainer:
+    """Contenedor simple para almacenar mensajes"""
+    def __init__(self):
+        self.msgs = []
+
 class Bank(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        
+        # Inicializar contenedores de mensajes
+        self.poor = MessageContainer()
+        self.rich = MessageContainer()
+        self.normal = MessageContainer()
 
         self.poor.msgs = [
             "No tenés un mango, andá a laburar.",

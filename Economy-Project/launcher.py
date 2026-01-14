@@ -21,7 +21,7 @@ def clear_screen():
 def print_banner():
     clear_screen()
     print(f"""
-{Colors.CYAN}--- BOT DE ECONOMIA (lo hice yo solo) ---
+{Colors.CYAN}--- BOT DE ECONOMIA ---
 {Colors.GREEN}=========================================
 {Colors.YELLOW}   No le toques nada si no sabes xd
 {Colors.GREEN}========================================={Colors.ENDC}

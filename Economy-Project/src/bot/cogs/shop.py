@@ -92,32 +92,6 @@ class Shop(commands.Cog):
         embed.add_field(name="Dinero Restante", value=f"${wallet - price + bonus:,}", inline=False)
         await ctx.send(embed=embed)
 
-    @commands.command(name='inventario')
-    async def show_inventory(self, ctx):
-        user_data = db.get_user(str(ctx.author.id))
-        inventory = user_data.get('inventory', {})
-        
-        if not inventory:
-            await ctx.send("tu inventario está vacío")
-            return
-        
-        embed = discord.Embed(
-            title=f"Inventario de {ctx.author.display_name}",
-            color=discord.Color.blue()
-        )
-        
-        for item_name, quantity in inventory.items():
-            if quantity > 0:
-                item = self.shop_items.get(item_name)
-                if item:
-                    embed.add_field(
-                        name=f"{item['name']} x{quantity}",
-                        value=f"Precio: ${item['price']:,}",
-                        inline=False
-                    )
-        
-        await ctx.send(embed=embed)
-
     @commands.command(name='vender', aliases=['sell'])
     @commands.cooldown(1, 3, commands.BucketType.user)
     async def sell_item(self, ctx, *, item_name: str):
