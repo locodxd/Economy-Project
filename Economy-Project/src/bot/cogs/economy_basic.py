@@ -1,5 +1,6 @@
 from discord.ext import commands
 import discord
+import logging
 import random
 from datetime import datetime, timedelta
 import sys
@@ -29,7 +30,6 @@ class WalletFoundView(discord.ui.View):
             return
         
         self.responded = True
-        
         reward = int(self.amount * 0.5)
         db.add_money(str(self.ctx.author.id), reward, "wallet")
         self.cog._modificar_aura(self.ctx.author.id, 100, "wallet_return")
@@ -144,6 +144,22 @@ class EconomyBasic(commands.Cog):
         user = db.get_user(str(user_id))
         return user.get('aura', 0)
     
+    def _obtener_wanted(self, user_id):
+        user = db.get_user(str(user_id))
+        return user.get('wanted_level', 0)
+    
+    def _calcular_penalidad_wanted(self, wanted_level):
+        if wanted_level == 0:
+            return 1.0
+        elif wanted_level < 5:
+            return 0.95  # 5% menos
+        elif wanted_level < 15:
+            return 0.85  # 15% menos
+        elif wanted_level < 30:
+            return 0.70  # 30% menos
+        else:
+            return 0.50  # 50% menos si eres muy buscado
+    
     def _modificar_aura(self, user_id, cantidad, razon=""):
         user = db.get_user(str(user_id))
         aura_actual = user.get('aura', 0)
@@ -197,9 +213,11 @@ class EconomyBasic(commands.Cog):
     @commands.command(name="daily", aliases=["d", "diario"])
     @commands.cooldown(1, 86400, commands.BucketType.user)
     async def daily(self, ctx):
-        # si esto se rompe con timezones me mato
         user_data = db.get_user(str(ctx.author.id))
         premio_base = ECONOMY_CONFIG['daily_reward']
+        
+        wanted = self._obtener_wanted(ctx.author.id)
+        penalidad = self._calcular_penalidad_wanted(wanted)
         
         ultimo_daily = user_data.get('last_daily')
         racha = user_data.get('daily_streak', 0)
@@ -216,7 +234,7 @@ class EconomyBasic(commands.Cog):
             racha = 1
         
         bonus_racha = racha * 100
-        premio_final = premio_base + bonus_racha
+        premio_final = int((premio_base + bonus_racha) * penalidad)  # ← Aplica penalidad
         
         db.add_money(str(ctx.author.id), premio_final, "wallet")
         user_data['last_daily'] = datetime.now().isoformat()
@@ -232,6 +250,10 @@ class EconomyBasic(commands.Cog):
         embed.add_field(name="Bonus racha", value=f"${bonus_racha:,}", inline=True)
         embed.add_field(name="Total", value=f"${premio_final:,}", inline=True)
         embed.add_field(name="Racha", value=f"{racha} días", inline=False)
+        
+        if wanted > 0:
+            embed.add_field(name="Penalización", value=f"Wanted {wanted}pts: -{int((1-penalidad)*100)}% de recompensa", inline=False)
+        
         embed.set_footer(text="vuelve mañana para seguir la racha")
         await self._agregar_gif(embed, "money")
         await ctx.send(embed=embed)
@@ -240,10 +262,13 @@ class EconomyBasic(commands.Cog):
     @commands.cooldown(1, 604800, commands.BucketType.user)
     async def weekly(self, ctx):
         user_data = db.get_user(str(ctx.author.id))
-        premio_base = 5000 
+        premio_base = 5000
+        
+        wanted = self._obtener_wanted(ctx.author.id)
+        penalidad = self._calcular_penalidad_wanted(wanted)
         
         bonus_random = random.randint(0, 2000)
-        premio_final = premio_base + bonus_random
+        premio_final = int((premio_base + bonus_random) * penalidad)
 
         db.add_money(str(ctx.author.id), premio_final, "wallet")
         user_data['last_weekly'] = datetime.now().isoformat()
@@ -257,6 +282,10 @@ class EconomyBasic(commands.Cog):
         embed.add_field(name="Base", value=f"${premio_base:,}", inline=True)
         embed.add_field(name="Bonus random", value=f"${bonus_random:,}", inline=True)
         embed.add_field(name="Total", value=f"${premio_final:,}", inline=True)
+        
+        if wanted > 0:
+            embed.add_field(name="Penalización", value=f"Wanted {wanted}pts: -{int((1-penalidad)*100)}% de recompensa", inline=False)
+        
         embed.set_footer(text="vuelve en 7 dias")
         await self._agregar_gif(embed, "money")
         await ctx.send(embed=embed)
@@ -369,6 +398,10 @@ class EconomyBasic(commands.Cog):
         
         earnings = random.randint(job['min'], job['max'])
         
+        wanted = self._obtener_wanted(ctx.author.id)
+        penalidad = self._calcular_penalidad_wanted(wanted)
+        earnings = int(earnings * penalidad)
+        
         productive = random.random() < 0.15
         if productive:
             bonus = int(earnings * 0.3)
@@ -392,6 +425,8 @@ class EconomyBasic(commands.Cog):
             description=f"{ctx.author.mention}, {random.choice(messages)}",
             color=discord.Color.green()
         )
+        if wanted > 0:
+            embed.add_field(name="Penalización", value=f"Wanted {wanted}pts: -{int((1-penalidad)*100)}% de recompensa", inline=False)
         embed.set_footer(text=footer_text)
         await self._agregar_gif(embed, "work")
         await ctx.send(embed=embed)
@@ -436,11 +471,10 @@ class EconomyBasic(commands.Cog):
         # hay que agradecer que no es mas alto el %
         chance_asalto = 0.10
         if aura_user < -200:
-            chance_asalto = 0.15  # te ves muy villano, mas peligroso
+            chance_asalto = 0.15  
         
         evento = await maybe_trigger_event(ctx, chance_asalto, ["Huir", "Pelear", "Llamar a la policia"])
 
-        
         if evento:
             if evento == "Huir":
                 if random.random() < 0.65:
@@ -486,12 +520,13 @@ class EconomyBasic(commands.Cog):
                     db.add_money(str(miembro.id), regalo, "wallet")
                     try:
                         await self._agregar_gif(embed, 'money')
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger = logging.getLogger(__name__)
+                        logger.exception("Error adding gif after bank bug event")
                     await ctx.send(f"el banco se equivoco y le dio ${regalo:,} extra a {miembro.mention}")
                 return
 
-        # transferencia normal (sin evento)
+        # transferencia normal 
         if db.transfer_money(str(ctx.author.id), str(miembro.id), plata):
             embed = discord.Embed(title="✅ Transferencia OK", color=0x2ecc71)
             embed.description = f"{ctx.author.mention} → {miembro.mention}"
@@ -511,6 +546,16 @@ class EconomyBasic(commands.Cog):
     @commands.command(name="beg", aliases=["mendigar"])
     @commands.cooldown(1, 300, commands.BucketType.user)
     async def beg(self, ctx):
+        wanted = self._obtener_wanted(ctx.author.id)
+        if wanted > 20:
+            embed = discord.Embed(
+                title="No puedes mendigar",
+                description=f"{ctx.author.mention}, eras muy buscado. Nadie va a ayudarte cuando estás en la lista de criminalidad {wanted}pts",
+                color=discord.Color.red()
+            )
+            await ctx.send(embed=embed)
+            return
+        
         aura_user = self._obtener_aura(ctx.author.id)
         
         fail_rate = 0.30
@@ -518,6 +563,10 @@ class EconomyBasic(commands.Cog):
             penalidad_aura = 0.05 * (abs(aura_user) / 100)
             fail_rate += penalidad_aura
             fail_rate = min(fail_rate, 0.75)
+        
+        if wanted > 0:
+            fail_rate += (wanted * 0.02)
+            fail_rate = min(fail_rate, 0.80)
         
         event_roll = random.random()
         
@@ -775,6 +824,50 @@ class EconomyBasic(commands.Cog):
         
         embed.add_field(name="Efecto Actual", value=beneficio, inline=False)
         
+        await ctx.send(embed=embed)
+
+    @commands.command(name="lawyer", aliases=["abogado"])
+    @commands.cooldown(1, 21600, commands.BucketType.user)
+    async def lawyer(self, ctx):
+        wanted = self._obtener_wanted(ctx.author.id)
+        
+        if wanted == 0:
+            await ctx.send(f"No necesitas abogado {ctx.author.mention}, no tenes wanted level")
+            ctx.command.reset_cooldown(ctx)
+            return
+        
+        costo = 500 + (wanted * 100)
+        user_data = db.get_user(str(ctx.author.id))
+        wallet = user_data.get('wallet', 0)
+        
+        if wallet < costo:
+            embed = discord.Embed(
+                title="No te alcanza la guita bro",
+                description=f"{ctx.author.mention}, el abogado cobra ${costo:,} y vos tenes ${wallet:,}",
+                color=discord.Color.red()
+            )
+            ctx.command.reset_cooldown(ctx)
+            await ctx.send(embed=embed)
+            return
+        reduccion = random.randint(2, 5)
+        nuevo_wanted = max(0, wanted - reduccion)
+        
+        db.remove_money(str(ctx.author.id), costo, "wallet")
+        
+        user_data['wanted_level'] = nuevo_wanted
+        db.update_user(str(ctx.author.id), user_data)
+        
+        embed = discord.Embed(
+            title="⚖️ Negociación Legal",
+            description=f"{ctx.author.mention}, tu abogado negoció con la policía",
+            color=discord.Color.blue()
+        )
+        embed.add_field(name="Costo", value=f"${costo:,}", inline=True)
+        embed.add_field(name="Wanted Anterior", value=f"{wanted}pts", inline=True)
+        embed.add_field(name="Wanted Nuevo", value=f"{nuevo_wanted}pts", inline=True)
+        embed.add_field(name="Reducción", value=f"-{reduccion}pts", inline=False)
+        embed.set_footer(text="Vuelve en 6 horas")
+        await self._agregar_gif(embed, "celebration")
         await ctx.send(embed=embed)
 
 async def setup(bot):

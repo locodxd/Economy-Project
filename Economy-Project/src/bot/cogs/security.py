@@ -5,38 +5,47 @@ bloquea comandos automaticamente cuando detecta abuso
 """
 
 import discord
+import datetime
 from discord.ext import commands
+from bot.utils.auth import is_config_admin
 import re
+from discord.ext import tasks
 import time
 import asyncio
 from collections import defaultdict, deque
 import logging
 
+
 logger = logging.getLogger('Security')
 
 class SecuritySystem(commands.Cog):
-    """cog de seguridad para evitar cosas raras"""
-    
+
+    @tasks.loop(hours=24)
+    async def borrar_datos_antiguos(self):
+        current_time = time.time()
+        to_remove = [uid for uid, history in self.command_history.items()
+                     if history and (current_time - history[-1]['timestamp'] > 86400)]
+        for uid in to_remove:
+            del self.command_history[uid]
+            if uid in self.user_warnings and self.user_warnings[uid] == 0:
+                del self.user_warnings[uid]
+
     def __init__(self, bot):
         self.bot = bot
-        
         self.command_history = defaultdict(lambda: deque(maxlen=15))
-        
         self.user_warnings = defaultdict(int)
-        
         self.suspicious_cooldown = {}
-        
         self.last_block_message = {}
-        
         self.blocked_users = set()
-        
-        # agregar check global al bot
         self.bot.add_check(self.global_security_check)
-        
-        self.blocked_users = set()  # usuarios bloqueados temporalmente
-        
+        self.blocked_users = set()
+        self.min_account_age_days = 2  
+        self.alt_account_cooldown = 120  
         self.bad_patterns = [
             # MongoDB/NoSQL injection operators y patrones comunes
+            # sacada de una lista de google, puedes ampliarla si quieres
+            # tiene cosas de XSS y SQLi tambien pero no es su foco principal
+            # esto pueden usarlo si es q quieren migrar a sql o algo en el futuro
             r'\$eq',
             r'\$where',
             r'\$ne',
@@ -60,13 +69,9 @@ class SecuritySystem(commands.Cog):
             r'\$all',
             r'\{\s*\$',
             r'\[\s*\$',
-            
-            # Prototype pollution
             r'__proto__',
             r'constructor\s*\[',
             r'prototype\s*\[',
-            
-            # XSS y script injection
             r'<script',
             r'</script>',
             r'javascript:',
@@ -76,8 +81,6 @@ class SecuritySystem(commands.Cog):
             r'<iframe',
             r'<object',
             r'<embed',
-            
-            # Code execution
             r'eval\s*\(',
             r'exec\s*\(',
             r'system\s*\(',
@@ -85,8 +88,6 @@ class SecuritySystem(commands.Cog):
             r'subprocess',
             r'os\.system',
             r'__import__',
-            
-            # Command injection patterns
             r'\|.*\|',
             r'&&',
             r'\|\|',
@@ -95,8 +96,6 @@ class SecuritySystem(commands.Cog):
             r';.*delete',
             r'`.*`',
             r'\$\(.*\)',
-            
-            # SQL injection, basico, no usamos sql pero por si acaso sirve en caso de alguien querer migrar
             r'union\s+select',
             r'drop\s+table',
             r'delete\s+from',
@@ -106,12 +105,8 @@ class SecuritySystem(commands.Cog):
             r'/\*.*\*/',
             r"'\s+or\s+'1'\s*=\s*'1",
             r'"\s+or\s+"1"\s*=\s*"1',
-            
-            # Path traversal
             r'\.\./\.\.',
             r'\.\.\\\.\.', 
-            
-            # Intentos de bypass
             r'\\x',
             r'\\u00',
             r'%00',
@@ -126,11 +121,7 @@ class SecuritySystem(commands.Cog):
         self.rapid_fire_window = 2.0  
         self.rapid_fire_limit = 4  
     
-    def check_payload(self, text):
-        """
-        revisa si hay algo sospechoso en el texto
-        retorna True si esta limpio, False si hay algo raro
-        """
+    def checkear_payload(self, text):
         if not text or not isinstance(text, str):
             return True
         
@@ -148,8 +139,18 @@ class SecuritySystem(commands.Cog):
         
         return True
     
+    def es_una_alt_account(self, user):
+        
+        account_age = datetime.datetime.now(datetime.timezone.utc) - user.created_at
+        account_age_days = account_age.days
+        
+        if account_age_days < self.min_account_age_days:
+            logger.warning(f'Cuenta alt detectada: Usuario {user.id} con {account_age_days} días de antigüedad')
+            return True
+        
+        return False
+    
     def detect_rapid_fire(self, user_id):
-        """detecta spam de comandos muy rapidos"""
         history = self.command_history[user_id]
         
         if len(history) < 3:
@@ -165,10 +166,6 @@ class SecuritySystem(commands.Cog):
         return False
     
     def detect_macro_pattern(self, user_id):
-        """
-        detecta si un usuario esta usando macros obvios
-        revisa los tiempos entre comandos con precision mejorada
-        """
         history = self.command_history[user_id]
         
         if len(history) < self.min_commands_check:
@@ -205,7 +202,6 @@ class SecuritySystem(commands.Cog):
         return False
     
     async def global_security_check(self, ctx):
-        """Check global que bloquea usuarios antes de ejecutar comandos"""
         user_id = str(ctx.author.id)
         
         if user_id in self.blocked_users:
@@ -228,12 +224,23 @@ class SecuritySystem(commands.Cog):
     
     @commands.Cog.listener()
     async def on_command(self, ctx):
-        """se ejecuta antes de cada comando - registra actividad"""
         
         user_id = str(ctx.author.id)
         current_time = time.time()
         
-        if not self.check_payload(ctx.message.content):
+        if self.es_una_alt_account(ctx.author):
+            self.user_warnings[user_id] += 1  # Solo 1 warning en vez de 2
+            self.suspicious_cooldown[user_id] = current_time + self.alt_account_cooldown
+            self.blocked_users.add(user_id)
+            
+            account_age_days = (discord.utils.utcnow() - ctx.author.created_at).days
+            await ctx.send(f'⚠️ **Cuenta nueva** ({account_age_days} días). '
+                          f'Debes esperar {self.min_account_age_days} días. '
+                          f'Reintenta en {self.alt_account_cooldown // 60} minuto(s).')
+            logger.warning(f'Cuenta nueva bloqueada: Usuario {user_id} con {account_age_days} días')
+            return
+        
+        if not self.checkear_payload(ctx.message.content):
             self.user_warnings[user_id] += 3
             self.suspicious_cooldown[user_id] = current_time + 180
             self.blocked_users.add(user_id)
@@ -264,16 +271,15 @@ class SecuritySystem(commands.Cog):
                 if self.user_warnings[user_id] >= 2:
                     self.suspicious_cooldown[user_id] = current_time + 90
                     self.blocked_users.add(user_id)
-                    await ctx.send('🚫 Patrón de macro detectado. Bloqueado 90s.')
+                    await ctx.send(' Patrón de macro detectado. Bloqueado 90s.')
                     logger.warning(f'Usuario {user_id} bloqueado por patron de macro')
                     self.user_warnings[user_id] = 0
                 else:
-                    await ctx.send('⚠️ Tu patron de uso parece automatico. Ultimo aviso.')
+                    await ctx.send(' Tu patron de uso parece automatico. Ultimo aviso.')
                     logger.info(f'Usuario {user_id} primera advertencia de macro')
     
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
-        """detecta intentos de inyeccion en errores"""
         
         user_id = str(ctx.author.id)
         
@@ -293,9 +299,8 @@ class SecuritySystem(commands.Cog):
                 logger.warning(f'Payload bloqueado de usuario {user_id}: {ctx.message.content[:100]}')
     
     @commands.command(name='securitystatus')
-    @commands.has_permissions(administrator=True)
+    @is_config_admin()
     async def security_status(self, ctx):
-        """ver estado del sistema de seguridad"""
         
         total_users_tracked = len(self.command_history)
         users_with_warnings = len([u for u, w in self.user_warnings.items() if w > 0])
@@ -311,7 +316,7 @@ class SecuritySystem(commands.Cog):
         embed.add_field(name='Usuarios bloqueados', value=str(users_in_cooldown), inline=True)
         embed.add_field(
             name='Configuracion',
-            value=f'Umbral macro: {self.macro_threshold}\nMin comandos: {self.min_commands_check}\nRapid fire: {self.rapid_fire_limit} cmds en {self.rapid_fire_window}s',
+            value=f'Umbral macro: {self.macro_threshold}\nMin comandos: {self.min_commands_check}\nRapid fire: {self.rapid_fire_limit} cmds en {self.rapid_fire_window}s\nMin edad cuenta: {self.min_account_age_days} días',
             inline=False
         )
         
@@ -333,9 +338,8 @@ class SecuritySystem(commands.Cog):
         await ctx.send(embed=embed)
     
     @commands.command(name='clearwarnings')
-    @commands.has_permissions(administrator=True)
+    @is_config_admin()
     async def clear_warnings(self, ctx, user: discord.Member):
-        """limpiar warnings de un usuario"""
         
         user_id = str(user.id)
         

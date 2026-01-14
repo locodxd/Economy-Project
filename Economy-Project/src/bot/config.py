@@ -1,3 +1,4 @@
+# cancer de codigo pero funciona
 import json
 from pathlib import Path
 import logging
@@ -8,8 +9,6 @@ TOKEN = 'YOUR_DISCORD_BOT_TOKEN'
 PREFIX = '.'
 
 logger.info('Iniciando carga de configuración...')
-
-# Cargar configuración desde bot_config.json
 BOT_CONFIG = {}
 config_path = Path('config/bot_config.json')
 logger.debug(f'Buscando archivo de configuración en: {config_path.absolute()}')
@@ -28,7 +27,6 @@ else:
     logger.warning(f'Archivo de configuración no encontrado en {config_path.absolute()}')
     logger.warning('Ejecuta configurator.py para crear la configuración')
 
-# Configuración del sistema de economía
 ECONOMY_CONFIG = {
     "daily_reward": 1000,
     "weekly_reward": 10000,
@@ -43,16 +41,17 @@ ECONOMY_CONFIG = {
     },
     "earning_per_message": 5,
     "earning_cooldown": 60,
-    "milestone_reward": 1000,  # Recompensa por alcanzar milestone
-    "milestone_interval": 100,  # Cada cuántos mensajes dar recompensa
+    "milestone_reward": 1000, 
+    "milestone_interval": 100,  
 }
 
-# Configuración de control de acceso
 OWNER_ROLE = BOT_CONFIG.get('owner_role')
-ADMIN_USER_IDS = BOT_CONFIG.get('admin_user_ids', [])
-ALLOWED_SERVERS = BOT_CONFIG.get('allowed_servers', [])
-COMMAND_CHANNELS = BOT_CONFIG.get('command_channels', {})
-
+ADMIN_USER_IDS = BOT_CONFIG.get('admin_user_ids') or []
+# Some configuraciones pueden estar presentes como `null` en el JSON. amigo esto es
+# un dolor de orto
+ALLOWED_SERVERS = BOT_CONFIG.get('allowed_servers') or []
+COMMAND_CHANNELS = BOT_CONFIG.get('command_channels') or {}
+MODO_PUBLICO = bool(BOT_CONFIG.get('modo_publico', False))
 logger.info(f'Owner Role: {OWNER_ROLE if OWNER_ROLE else "No configurado"}')
 logger.info(f'Admin Users: {len(ADMIN_USER_IDS)} usuario(s)')
 logger.info(f'Servidores Permitidos: {len(ALLOWED_SERVERS)} servidor(es)')
@@ -62,11 +61,8 @@ if ALLOWED_SERVERS:
     logger.debug(f'Lista de servidores: {ALLOWED_SERVERS}')
 if COMMAND_CHANNELS:
     logger.debug(f'Canales por servidor: {COMMAND_CHANNELS}')
-
-# Rutas de archivos JSON
 DATA_DIR = "database"
 USERS_DB = f"{DATA_DIR}/users.json"
 SHOP_DB = f"{DATA_DIR}/shop_items.json"
 TRANSACTIONS_DB = f"{DATA_DIR}/transactions.json"
-
 logger.debug(f'Directorio de datos: {DATA_DIR}')

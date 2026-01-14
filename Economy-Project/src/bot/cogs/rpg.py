@@ -113,90 +113,63 @@ class MissionData:
     }
 
 class CombatView(discord.ui.View):
-    """botones para pelear nomas asi de una sencillo"""
-    
+
     def __init__(self, ctx):
         super().__init__(timeout=30)
         self.ctx = ctx
         self.action = None
-    
-    @discord.ui.button(label="Atacar", style=discord.ButtonStyle.danger)
-    async def attack_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+
+    async def handle_action(self, interaction: discord.Interaction, action: str):
         if interaction.user.id != self.ctx.author.id:
             await interaction.response.send_message("no es tu pelea bro", ephemeral=True)
             return
-        
-        self.action = "attack"
+        self.action = action
         for item in self.children:
             item.disabled = True
-        await interaction.response.edit_message(view=self)
-        self.stop()
-    
-    @discord.ui.button(label="Defender", style=discord.ButtonStyle.primary)
-    async def defend_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if interaction.user.id != self.ctx.author.id:
-            await interaction.response.send_message("no es tu pelea bro", ephemeral=True)
-            return
-        
-        self.action = "defend"
-        for item in self.children:
-            item.disabled = True
-        await interaction.response.edit_message(view=self)
-        self.stop()
-    
-    @discord.ui.button(label="Huir", style=discord.ButtonStyle.secondary)
-    async def flee_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if interaction.user.id != self.ctx.author.id:
-            await interaction.response.send_message("no es tu pelea bro", ephemeral=True)
-            return
-        
-        self.action = "flee"
-        for item in self.children:
-            item.disabled = True
+
         await interaction.response.edit_message(view=self)
         self.stop()
 
-class MissionDecisionView(discord.ui.View):
-    """botones para decisiones en misiones"""
+    @discord.ui.button(label="Atacar", style=discord.ButtonStyle.danger)
+    async def attack(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.handle_action(interaction, "attack")
+
+    @discord.ui.button(label="Defender", style=discord.ButtonStyle.primary)
+    async def defend(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.handle_action(interaction, "defend")
+    @discord.ui.button(label="Huir", style=discord.ButtonStyle.secondary)
+    async def flee(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.handle_action(interaction, "flee")
     
-    def __init__(self, ctx, buttons_config: dict):
+class MissionDecisionButton(discord.ui.View):
+
+    def __init__(self, ctx, choices: dict):
         super().__init__(timeout=30)
         self.ctx = ctx
-        self.buttons_config = buttons_config  # {'1': 'label1', '2': 'label2', '3': 'label3'} 
         self.choice = None
-    
-    @discord.ui.button(label="1️⃣", style=discord.ButtonStyle.primary, custom_id="choice_1")
+
+    async def handle_action(self, interaction: discord.Interaction, choice: str):
+        if interaction.user.id != self.ctx.author.id:
+            await interaction.response.send_message("no es tu mision bro", ephemeral=True)
+            return
+        self.choice = choice 
+
+        for item in self.children:
+            item.disable = True
+
+        await interaction.response.edit_message(view=self)
+        self.stop()
+    @discord.ui.button(label="1", style=discord.ButtonStyle.primary, custom_id="choice_1")
     async def choice_1(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if interaction.user.id != self.ctx.author.id:
-            await interaction.response.send_message("no es tu mision bro", ephemeral=True)
-            return
-        self.choice = '1'
-        for item in self.children:
-            item.disabled = True
-        await interaction.response.edit_message(view=self)
-        self.stop()
+        await self.handle_action(interaction, '1')
     
-    @discord.ui.button(label="2️⃣", style=discord.ButtonStyle.success, custom_id="choice_2")
+    @discord.ui.button(label="2", style=discord.ButtonStyle.primary, custom_id="choice_2")
     async def choice_2(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if interaction.user.id != self.ctx.author.id:
-            await interaction.response.send_message("no es tu mision bro", ephemeral=True)
-            return
-        self.choice = '2'
-        for item in self.children:
-            item.disabled = True
-        await interaction.response.edit_message(view=self)
-        self.stop()
-    
-    @discord.ui.button(label="3️⃣", style=discord.ButtonStyle.danger, custom_id="choice_3")
+        await self.handle_action(interaction, '2')
+
+    @discord.ui.button(label="3", style=discord.ButtonStyle.primary, custom_id="choice_3")
     async def choice_3(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if interaction.user.id != self.ctx.author.id:
-            await interaction.response.send_message("no es tu mision bro", ephemeral=True)
-            return
-        self.choice = '3'
-        for item in self.children:
-            item.disabled = True
-        await interaction.response.edit_message(view=self)
-        self.stop()
+        await self.handle_action(interaction, '3')
 
 class RPG(commands.Cog):
     
@@ -206,17 +179,14 @@ class RPG(commands.Cog):
     
     @commands.group(name="rpg", invoke_without_command=True)
     async def rpg(self, ctx):
-        """comandos rpg"""
         if ctx.invoked_subcommand is None:
             await ctx.send("usa `.rpg profile` o `.rpg missions` pa empezar")
     
     @rpg.command(name="profile", aliases=["stats"])
     async def profile(self, ctx):
-        """mira tus stats"""
         stats = RPGStats.get_stats(str(ctx.author.id))
         user_data = db.get_user(str(ctx.author.id))
         
-        # cuanta xp necesitas pa subir
         xp_needed = stats['level'] * 100
         
         embed = discord.Embed(
@@ -261,9 +231,8 @@ class RPG(commands.Cog):
         await ctx.send(embed=embed)
     
     @rpg.command(name="mission", aliases=["quest"])
-    @commands.cooldown(1, 60, commands.BucketType.user)  # 1 mision cada 60 segundos
+    @commands.cooldown(1, 60, commands.BucketType.user)  
     async def mission(self, ctx, mission_id: str = None):
-        """hace una mision con decisiones"""
         if not mission_id:
             ctx.command.reset_cooldown(ctx)
             await ctx.send("usa `.rpg mission <id>` o mira `.rpg missions`")
@@ -299,7 +268,7 @@ class RPG(commands.Cog):
         embed1.add_field(name="3️⃣ Retirarse", value="espera y observa", inline=False)
         embed1.set_footer(text="elige tu accion (30 segundos)")
         
-        view1 = MissionDecisionView(ctx, {'1': 'Avanzar', '2': 'Investigar', '3': 'Retirarse'})
+        view1 = MissionDecisionButton(ctx, {'1': 'Avanzar', '2': 'Investigar', '3': 'Retirarse'})
         msg1 = await ctx.send(embed=embed1, view=view1)
         await view1.wait()
         
@@ -311,7 +280,7 @@ class RPG(commands.Cog):
         # Procesar primera decisión
         decision1_success = random.random() < 0.6  # 60%
         
-        if view1.choice == '1':  # Avanzar
+        if view1.choice == '1':  
             if decision1_success:
                 result1 = "avanzas directo sin problemas"
                 damage1 = 0
@@ -319,7 +288,7 @@ class RPG(commands.Cog):
                 result1 = "¡emboscada! tomas daño"
                 damage1 = random.randint(10, 20)
         
-        elif view1.choice == '2':  # Investigar
+        elif view1.choice == '2':  
             if decision1_success:
                 result1 = "encuentras una ruta segura alternativa"
                 damage1 = 0
@@ -361,7 +330,7 @@ class RPG(commands.Cog):
         embed2.add_field(name="3️⃣ Esconderse", value="busca un lugar seguro", inline=False)
         embed2.set_footer(text="elige tu accion (30 segundos)")
         
-        view2 = MissionDecisionView(ctx, {'1': 'Atacar', '2': 'Distraer', '3': 'Esconderse'})
+        view2 = MissionDecisionButton(ctx, {'1': 'Atacar', '2': 'Distraer', '3': 'Esconderse'})
         msg2 = await ctx.send(embed=embed2, view=view2)
         await view2.wait()
         
@@ -369,12 +338,10 @@ class RPG(commands.Cog):
             ctx.command.reset_cooldown(ctx)
             await msg2.edit(content="se acabó el tiempo boludo", embed=None, view=None)
             return
-        
-        # Procesar segunda decisión
         decision2_success = random.random() < 0.5  # 50%
         xp_bonus = 0
         
-        if view2.choice == '1':  # Atacar
+        if view2.choice == '1':  
             if decision2_success:
                 result2 = "le pegaste directo, lo noqueas!"
                 damage2 = 0
@@ -383,7 +350,7 @@ class RPG(commands.Cog):
                 result2 = "¡falla! contraataca furioso"
                 damage2 = random.randint(15, 30)
         
-        elif view2.choice == '2':  # Distraer
+        elif view2.choice == '2':  
             if decision2_success:
                 result2 = "lo distraes y logras escapar"
                 damage2 = 0
@@ -401,7 +368,6 @@ class RPG(commands.Cog):
                 result2 = "¡te encuentra! lucha desigual"
                 damage2 = random.randint(20, 35)
         
-        # Aplicar daño de segunda decisión
         damage2 = Abilities.apply_tank(str(ctx.author.id), damage2)
         stats['hp'] = max(0, stats['hp'] - damage2)
         user_data = db.get_user(str(ctx.author.id))
@@ -455,11 +421,10 @@ class RPG(commands.Cog):
         await ctx.send(embed=final_embed)
     
     @rpg.command(name="boss")
-    @commands.cooldown(1, 120, commands.BucketType.user)  # 1 boss cada 2 minutos
+    @commands.cooldown(1, 120, commands.BucketType.user) 
     async def boss(self, ctx, boss_id: str = None):
         """pelea contra un boss"""
         if not boss_id:
-            # mostrar bosses
             embed = discord.Embed(title="Bosses", color=discord.Color.red())
             
             for bid, boss in MissionData.BOSSES.items():
@@ -493,7 +458,6 @@ class RPG(commands.Cog):
             await ctx.send("estas muerto bro")
             return
         
-        # sistema de pelea por turnos
         boss_hp = boss['hp']
         player_hp = stats['hp']
         

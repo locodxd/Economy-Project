@@ -28,14 +28,12 @@ class JSONDatabase:
     def _load(self) -> Dict:
         if self.db_path.exists():
             try:
-                logger.debug(f'Cargando datos desde {self.db_path}')
+                # aca carga todo el json de golpe, si es muy grande igual va lento pero bueno
                 with open(self.db_path, 'r', encoding='utf-8') as f:
                     data = json.load(f)
-                logger.info(f'Datos cargados correctamente: {len(data)} entradas')
                 return data
             except json.JSONDecodeError as e:
-                logger.error(f"Archivo JSON corrupto: {e}")
-                logger.warning("Creando backup del archivo corrupto y creando nuevo archivo")
+                # si se rompe el json hago backup por si las moscas
                 self._backup()
                 return {}
             except Exception as e:

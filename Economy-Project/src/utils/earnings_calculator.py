@@ -20,13 +20,9 @@ def clear_screen():
 
 def print_header():
     print(f"""
-{Colors.CYAN}╔════════════════════════════════════════════════════════════╗
-║                                                            ║
-║           CALCULADORA DE GANANCIAS POR TIEMPO              ║
-║                                                            ║
-║     Sistema de Economía Discord Bot                        ║
-║                                                            ║
-╚════════════════════════════════════════════════════════════╝{Colors.ENDC}
+{Colors.CYAN}--- CUANTA PLATA VAS A GANAR ---
+{Colors.GREEN}Calculadora rapida
+{Colors.CYAN}--------------------------------{Colors.ENDC}
     """)
 
 def calculate_earnings():

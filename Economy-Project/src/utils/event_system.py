@@ -1,6 +1,9 @@
 from typing import List, Callable, Optional
 import discord
 from discord import ui
+import logging
+
+logger = logging.getLogger(__name__)
 
 class EventView(ui.View):
     def __init__(self, ctx, choices: List[str], timeout: int = 30):
@@ -50,7 +53,7 @@ async def maybe_trigger_event(ctx, chance: float, choices: List[str], timeout: i
             item.disabled = True
         try:
             await msg.edit(content="No respondiste a tiempo.", view=view)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.exception("Error editing event message on timeout")
         return None
     return view.result_payload

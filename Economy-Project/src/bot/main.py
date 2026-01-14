@@ -23,17 +23,16 @@ logging.basicConfig(
     ]
 )
 
-# con esto podes reducir la verbosidad de los logs de discord.py si quieres
+# con esto quito el spam de logs de discord q me tiene harto
 logging.getLogger('discord').setLevel(logging.WARNING)
 logging.getLogger('discord.http').setLevel(logging.WARNING)
 logging.getLogger('discord.gateway').setLevel(logging.WARNING)
 logging.getLogger('discord.client').setLevel(logging.INFO)
 
-logger.info('='*60)
-logger.info('INICIANDO BOT DE ECONOMÍA')
-logger.info('='*60)
+logger.info('VAAAAAAMOOO EL BOT SE ESTA PRENDIENDO')
+logger.info('ojala no tire ningun error raro ahora')
 
-logger.debug('Cargando variables de entorno...')
+logger.debug('cargando cosas...')
 # Cargar .env desde la raíz del proyecto (2 niveles arriba)
 env_path = Path(__file__).parent.parent.parent / '.env'
 load_dotenv(dotenv_path=env_path)
@@ -57,13 +56,14 @@ logger.info(f'Prefijo de comandos: {PREFIX}')
 
 logger.debug('Importando configuración del bot...')
 try:
-    from bot.config import ALLOWED_SERVERS, COMMAND_CHANNELS
+    from bot.config import ALLOWED_SERVERS, COMMAND_CHANNELS, ADMIN_USER_IDS, MODO_PUBLICO
     logger.info('Configuración importada correctamente')
 except Exception as e:
     logger.error(f'Error al importar configuración: {e}')
     logger.debug(traceback.format_exc())
     sys.exit(1)
 
+# los permisos y eso
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True

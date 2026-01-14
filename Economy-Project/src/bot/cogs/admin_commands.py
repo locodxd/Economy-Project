@@ -10,6 +10,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from core.database import db
+from bot.utils.auth import is_config_admin_app
 
 class AdminCommands(commands.Cog):
     
@@ -17,11 +18,11 @@ class AdminCommands(commands.Cog):
         self.bot = bot
     
     def is_admin(interaction: discord.Interaction) -> bool:
-        """Verifica si el usuario es administrador"""
+        """Deprecated. Use EZ-config admin check instead."""
         return interaction.user.guild_permissions.administrator
     
     @app_commands.command(name="aeco_set", description="Establece el dinero de un usuario")
-    @app_commands.check(is_admin)
+    @is_config_admin_app()
     async def aeco_set(
         self, 
         interaction: discord.Interaction,
@@ -65,7 +66,7 @@ class AdminCommands(commands.Cog):
         await interaction.response.send_message(embed=embed)
     
     @app_commands.command(name="aeco_reset", description="Resetea completamente la economía de un usuario")
-    @app_commands.check(is_admin)
+    @is_config_admin_app()
     async def aeco_reset(
         self,
         interaction: discord.Interaction,
@@ -92,7 +93,7 @@ class AdminCommands(commands.Cog):
         await interaction.response.send_message(embed=embed)
     
     @app_commands.command(name="aeco_add", description="Añade dinero a un usuario")
-    @app_commands.check(is_admin)
+    @is_config_admin_app()
     async def aeco_add(
         self,
         interaction: discord.Interaction,
@@ -134,7 +135,7 @@ class AdminCommands(commands.Cog):
         await interaction.response.send_message(embed=embed)
     
     @app_commands.command(name="aeco_remove", description="Quita dinero a un usuario")
-    @app_commands.check(is_admin)
+    @is_config_admin_app()
     async def aeco_remove(
         self,
         interaction: discord.Interaction,
@@ -181,7 +182,7 @@ class AdminCommands(commands.Cog):
             )
     
     @app_commands.command(name="aeco_tienda", description="Añade un item a la tienda del servidor")
-    @app_commands.check(is_admin)
+    @is_config_admin_app()
     @app_commands.describe(cantidad='cantidad disponible (1 o más, escribe \'infinito\' para ilimitado)')
     async def aeco_tienda(
         self,

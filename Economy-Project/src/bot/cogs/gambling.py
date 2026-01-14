@@ -10,10 +10,12 @@ from discord import ui
 import random
 import sys
 from pathlib import Path
-# Manejo de imports relativo al proyecto 
 try:
     from core.database import db
-except Exception:
+except Exception as e:
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.exception("Error importing core.database, attempting sys.path fixup")
     project_root = Path(__file__).resolve().parents[2]
     if str(project_root) not in sys.path:
         sys.path.insert(0, str(project_root))
@@ -23,19 +25,16 @@ from utils.event_system import maybe_trigger_event
 from utils.tenor_core import get_tenor
 
 class Gambling(commands.Cog):
-    """Juegos de azar"""
 
     def __init__(self, bot):
         self.bot = bot
     
     # Helper functions porque copypastear codigo es de junior dev
     def _tiene_plata(self, user_id, cantidad):
-        """Chequea si el user tiene guita suficiente"""
         saldo = db.get_user(str(user_id)).get('wallet', 0)
         return saldo >= cantidad, saldo
     
     def _calcular_premio_slots(self, s1, s2, s3):
-        """Calcula el multiplicador de slots, saque esta logica aparte porque era un quilombo"""
         if s1 == "👑" and s2 == "👑" and s3 == "👑":
             return 50, True  
         elif s1 == s2 == s3:
@@ -46,7 +45,6 @@ class Gambling(commands.Cog):
         return 0, False
     
     async def _agregar_gif(self, embed, categoria):
-        """Intenta agregar un gif, si falla no pasa nada"""
         try:
             gif_url = await get_tenor().get_gif(categoria)
             if gif_url:
@@ -57,19 +55,15 @@ class Gambling(commands.Cog):
 
     @commands.command(name="coinflip", aliases=["cf", "moneda"])
     async def coinflip(self, ctx, apuesta: int, eleccion: str):
-        """Tira la moneda y cruza los dedos"""
         eleccion = eleccion.lower()
         if eleccion not in ["cara", "cruz", "heads", "tails"]:
             return await ctx.send("man elige cara o cruz, no es tan dificil")
-        
-        # Validaciones basicas
         if apuesta <= 0:
             return await ctx.send("no podes apostar 0 pesos amigo")
         
         tiene_guita, saldo = self._tiene_plata(ctx.author.id, apuesta)
         if not tiene_guita:
             return await ctx.send(f"estas re pobre loco, tenes ${saldo:,} nomas")
-        # eventos random antes de tirar la moneda
         evento = await maybe_trigger_event(ctx, 0.08, ["Huir", "Pelear", "Llamar a la policia"])
         if evento:
             if evento == "Huir":
@@ -103,7 +97,7 @@ class Gambling(commands.Cog):
             db.add_money(str(ctx.author.id), premio_loco, "wallet")
             return await ctx.send(f"🪙 LA MONEDA CAYO DE CANTO WTF!! +${premio_loco:,} no lo puedo creer")
         
-        # a veces la moneda esta trucada sin que te des cuenta xd
+        # a veces la moneda esta trucada sin que te des cuenta xd igual medio dificil trucar una moneda
         moneda_trucada = random.random() < 0.03
         resultado = "cara" if eleccion in ["cara", "heads"] else "cruz" if moneda_trucada else random.choice(["cara", "cruz"])
         
@@ -141,8 +135,6 @@ class Gambling(commands.Cog):
     @commands.command(name="dice", aliases=["dados"])
     @commands.cooldown(1, 45, commands.BucketType.user)
     async def dice(self, ctx, plata: int):
-        """Tira los dados a ver que sale"""
-        
         user_data = db.get_user(str(ctx.author.id))
         saldo_actual = user_data.get('wallet', 0)
         
@@ -154,8 +146,6 @@ class Gambling(commands.Cog):
 
         dados_dorados = random.random() < 0.01
         d1, d2 = random.randint(1, 6), random.randint(1, 6)
-        
-        # a veces sale un dado cargado
         if random.random() < 0.04 and not dados_dorados:
             d1 = 6
         
@@ -184,7 +174,6 @@ class Gambling(commands.Cog):
             
             await self._agregar_gif(embed, 'dice')
         else:
-            # consolacion si sacaste muy poco
             if random.random() < 0.08:
                 devuelto = int(plata * 0.4)
                 db.remove_money(str(ctx.author.id), plata - devuelto, "wallet")
@@ -200,14 +189,11 @@ class Gambling(commands.Cog):
 
     @commands.command(name="slots", aliases=["tragamonedas"])
     async def slots(self, ctx, apuesta: int):
-        """La maquinita, reza para que salga algo bueno"""
-        # validacion al reves para variar
         tiene_guita, balance = self._tiene_plata(ctx.author.id, apuesta)
         if apuesta <= 0:
             return await ctx.send("apostá algo real viejo")
         if not tiene_guita:
             return await ctx.send(f"no tenes ni un peso (saldo: ${balance:,})")
-        # evento pre-slots
         evento = await maybe_trigger_event(ctx, 0.07, ["Huir", "Pelear", "Llamar a la policia"])
         if evento == "Huir":
             if random.random() > 0.6:
@@ -484,7 +470,6 @@ class Gambling(commands.Cog):
     @commands.command(name="roulette", aliases=["ruleta"])
     @commands.cooldown(1, 60, commands.BucketType.user)
     async def roulette(self, ctx, plata: int, apuesta: str):
-        """Ruleta europea, apuesta a colores o numeros"""
         apuesta = apuesta.lower()
         
         saldo = db.get_user(str(ctx.author.id)).get('wallet', 0)
@@ -545,7 +530,6 @@ class Gambling(commands.Cog):
         
         simbolos = ["💎", "7️⃣", "🍀", "⭐", "❌", "❌", "❌", "❌", "❌", "💔"]
         
-        # ticket dorado ultra raro
         dorado = random.random() < 0.01
         if dorado:
             simbolo_ganador = random.choice(["💎", "7️⃣", "🍀", "⭐"])
@@ -582,7 +566,6 @@ class Gambling(commands.Cog):
     @commands.command(name="crash")
     @commands.cooldown(1, 50, commands.BucketType.user)
     async def crash(self, ctx, plata: int, objetivo: float):
-        """Crash game, elige cuando salir antes de que explote"""
         
         if objetivo < 1.1 or objetivo > 10:
             return await ctx.send("el multi debe estar entre 1.1x y 10x")
@@ -593,7 +576,6 @@ class Gambling(commands.Cog):
         if plata <= 0:
             return await ctx.send("aposta plata de verdad")
         
-        # a veces el sistema te ayuda
         ayuda = random.random() < 0.03
         
         if ayuda:

@@ -3,22 +3,19 @@ import discord
 from core.database import db
 
 class Leaderboard(commands.Cog):
-    """Comandos para manejar el leaderboard de usuarios"""
 
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command(name="leaderboard", aliases=["lb"])
     async def leaderboard(self, ctx):
-        """📊 Muestra el leaderboard de usuarios basado en riqueza"""
-        # obtener todos los usuarios
+        # obtener todos los usuarers
         all_users = db.get_all_users()
         
         if not all_users:
             await ctx.send("❌ No hay usuarios registrados todavía")
             return
         
-        # calcular riqueza total (wallet + bank)
         user_wealth = []
         for user_id, user_data in all_users.items():
             try:

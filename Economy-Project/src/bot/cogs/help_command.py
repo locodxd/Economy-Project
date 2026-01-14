@@ -1,11 +1,15 @@
-# sistema de ayuda personalizado, hecho por un pibe que no duerme XD
+# sistema de ayuda personalizado, hecho por un pibe que no duerme
 
 import discord
 from discord.ext import commands
 from typing import Optional
+import logging
+
+from bot.utils.auth import is_config_admin
+
+logger = logging.getLogger(__name__)
 
 class HelpView(discord.ui.View):
-    # vista de los botones, si tocas algo aca seguro se rompe XD
     
     def __init__(self, ctx, bot):
         super().__init__(timeout=120)
@@ -29,7 +33,7 @@ class HelpView(discord.ui.View):
             return
         
         if not interaction.user.guild_permissions.administrator:
-            await interaction.response.send_message("No tenes permisos de admin jefe, no te hagas el vivo.", ephemeral=True)
+            await interaction.response.send_message("No tenes permisos de admin jefe, no te hagas el vivete.", ephemeral=True)
             return
         
         embed = self.get_admin_embed()
@@ -56,7 +60,7 @@ class HelpView(discord.ui.View):
             value="\n".join([
                 "`.daily` - Tu regalo diario",
                 "`.weekly` - Tu regalo semanal",
-                "`.work` - A laburar",
+                "`.work` - La famosa pala",
                 "`.balance` - Cuanta plata tenes",
                 "`.deposit` - Guardar en el banco",
                 "`.withdraw` - Sacar del banco",
@@ -194,12 +198,11 @@ class HelpView(discord.ui.View):
         if self.message:
             try:
                 await self.message.edit(view=self)
-            except:
-                pass
+            except Exception as e:
+                logger.exception("Error editing help view message on timeout")
 
 class HelpCommand(commands.Cog):
     # sistema de ayuda, no lo rompas porfa que costo un huevo XD
-    
     def __init__(self, bot):
         self.bot = bot
     
@@ -209,13 +212,11 @@ class HelpCommand(commands.Cog):
             cmd = self.bot.get_command(comando)
             if not cmd:
                 return await ctx.send(f"No encontre el comando `{comando}` bro")
-            
             embed = discord.Embed(
                 title=f"Ayuda: {cmd.name}",
                 description=cmd.help or "No tiene descripcion este comando",
                 color=discord.Color.blue()
             )
-            
             if cmd.aliases:
                 embed.add_field(
                     name="Aliases",
@@ -231,7 +232,7 @@ class HelpCommand(commands.Cog):
             view.message = await ctx.send(embed=view.get_home_embed(), view=view)
     
     @commands.command(name="setmilestone")
-    @commands.has_permissions(administrator=True)
+    @is_config_admin()
     async def set_milestone_reward(self, ctx, cantidad: int):
         if cantidad < 0:
             await ctx.send("La guita tiene que ser positiva pa")
@@ -242,7 +243,7 @@ class HelpCommand(commands.Cog):
         await ctx.send(f"Listo, ahora el premio por milestone es de **{cantidad:,} coins**")
     
     @commands.command(name="setinterval")
-    @commands.has_permissions(administrator=True)
+    @is_config_admin()
     async def set_milestone_interval(self, ctx, intervalo: int):
         if intervalo < 1:
             await ctx.send("Pone un numero mayor a 0 che")
@@ -253,5 +254,5 @@ class HelpCommand(commands.Cog):
         await ctx.send(f"Ahora dan premio cada **{intervalo} mensajes**")
 
 async def setup(bot):
-    # esto es para cargar el modulo, no tocar XD
+    # esto es para cargar el modulo, no tocar
     await bot.add_cog(HelpCommand(bot))

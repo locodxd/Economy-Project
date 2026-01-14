@@ -8,6 +8,9 @@ import random
 from datetime import datetime, timedelta
 import sys
 from pathlib import Path
+import logging
+
+logger = logging.getLogger(__name__)
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from core.database import db
@@ -396,7 +399,8 @@ class Crime(commands.Cog):
                 await ctx.send(embed=embed)
             else:
                 await ctx.send(f"{ctx.author.mention}, {random.choice(messages)}")
-        except Exception:
+        except Exception as e:
+            logger.exception("Error getting gif for treasure/search event")
             await ctx.send(f"{ctx.author.mention}, {random.choice(messages)}")
     
     @commands.command(name="rob", aliases=["robar"])
@@ -494,8 +498,8 @@ class Crime(commands.Cog):
                     gif_url = await self.tenor.get_gif('robbery')
                     if gif_url:
                         embed.set_image(url=gif_url)
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.exception("Error getting gif for robbery")
                 
                 await ctx.send(embed=embed)
         else:
@@ -520,8 +524,8 @@ class Crime(commands.Cog):
                 gif_url = await self.tenor.get_gif('police')
                 if gif_url:
                     embed.set_image(url=gif_url)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.exception("Error getting gif for police event")
             
             await ctx.send(embed=embed)
     
@@ -579,8 +583,8 @@ class Crime(commands.Cog):
             gif_url = await self.tenor.get_gif('police' if wanted_points > 0 else 'win')
             if gif_url:
                 embed.set_image(url=gif_url)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.exception("Error getting gif for wanted embed")
         
         await ctx.send(embed=embed)
     
@@ -663,8 +667,8 @@ class Crime(commands.Cog):
                 gif_url = await self.tenor.get_gif('explosion')
                 if gif_url:
                     embed.set_image(url=gif_url)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.exception("Error getting gif for heist explosion")
         else:
             fine = random.randint(500, 1500)
             db.remove_money(str(ctx.author.id), fine, "wallet")
@@ -684,8 +688,8 @@ class Crime(commands.Cog):
                 gif_url = await self.tenor.get_gif('police')
                 if gif_url:
                     embed.set_image(url=gif_url)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.exception("Error getting gif for heist police event")
         
         await ctx.send(embed=embed)
 

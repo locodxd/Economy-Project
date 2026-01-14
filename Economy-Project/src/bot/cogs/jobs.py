@@ -50,7 +50,7 @@ class Jobs(commands.Cog):
             {"name": "Abogado consultor", "min": 380, "max": 850},
             {"name": "Médico de guardia", "min": 400, "max": 900},
             {"name": "Desarrollador web", "min": 350, "max": 820},
-            {"name": "Hacker ético", "min": 370, "max": 840},
+            {"name": "Hacker ético", "min": 370, "max": 1840},
             {"name": "Arquitecto freelance", "min": 340, "max": 790},
             {"name": "Consultor empresarial", "min": 360, "max": 830},
             {"name": "Agente inmobiliario", "min": 310, "max": 730},
@@ -61,13 +61,11 @@ class Jobs(commands.Cog):
 
     @commands.command(name="findjob", aliases=["buscarjob"])
     async def find_job(self, ctx):
-        """🔍 Encuentra un trabajo para ganar dinero."""
         job = random.choice(self.jobs)
         await ctx.send(f"Has encontrado un trabajo como **{job['name']}**. Puedes ganar entre ${job['min']} y ${job['max']} por trabajo.")
 
     @commands.command(name="joblist", aliases=["listajobs", "trabajos"])
     async def job_list(self, ctx):
-        """💼 Muestra la lista de trabajos disponibles."""
         job_list = "\n".join([f"**{job['name']}**: ${job['min']} - ${job['max']}" for job in self.jobs])
         await ctx.send(f"📋 **Trabajos Disponibles:**\n{job_list}")
 

@@ -1,6 +1,5 @@
 """
-Advanced Economy Bot - Ez-Configuration
-Sistema de configuración interactivo
+config del bot para no andar editando el .env a mano que es un lio
 """
 
 import os
@@ -21,22 +20,19 @@ def clear_screen():
 def print_banner():
     clear_screen()
     print(f"""
-{Colors.CYAN}╔════════════════════════════════════════════════════════════╗
-║                                                            ║
-║              {Colors.BOLD}ADVANCED ECONOMY{Colors.ENDC}{Colors.CYAN}                               ║
-║              {Colors.BOLD}Ez-Configuration{Colors.ENDC}{Colors.CYAN}                               ║
-║                                                            ║
-╚════════════════════════════════════════════════════════════╝{Colors.ENDC}
+{Colors.CYAN}--- CONFIG DEL BOT ---
+{Colors.GREEN}No borres nada raro o se rompe xD
+{Colors.CYAN}--- By locodxd ---{Colors.ENDC}
     """)
 
 def get_input(prompt, optional=False, multiline=False):
-    """Obtiene input del usuario"""
+    """gets input from user"""
     if optional:
-        prompt += f" {Colors.YELLOW}(opcional, presiona Enter para omitir){Colors.ENDC}"
+        prompt += f" {Colors.YELLOW}(puedes saltarlo con Enter){Colors.ENDC}"
     
     if multiline:
         print(f"{Colors.GREEN}{prompt}{Colors.ENDC}")
-        print(f"{Colors.YELLOW}Ingresa IDs separados por comas (ej: 123,456,789):{Colors.ENDC}")
+        print(f"{Colors.YELLOW}Pon las IDs separadas por comas (ej: 111,222):{Colors.ENDC}")
     else:
         print(f"{Colors.GREEN}{prompt}{Colors.ENDC}")
     
@@ -48,52 +44,39 @@ def get_input(prompt, optional=False, multiline=False):
     return value if value else None
 
 def show_tenor_guide():
-    """Muestra guía para obtener API key de Tenor"""
-    print(f"\n{Colors.CYAN}═══════════════════════════════════════════════════════════{Colors.ENDC}")
-    print(f"{Colors.BOLD}Como obtener API Key de Tenor:{Colors.ENDC}")
-    print(f"1. Ve a: https://tenor.com/developer/dashboard")
-    print(f"2. Inicia sesión o crea una cuenta")
-    print(f"3. Crea una nueva aplicación")
-    print(f"4. Copia la 'API Key'")
-    print(f"{Colors.CYAN}═══════════════════════════════════════════════════════════{Colors.ENDC}\n")
+    """guia de tenor"""
+    print(f"\n{Colors.CYAN}=== Guia rapida Tenor ==={Colors.ENDC}")
+    print(f"1. Ve a la web de Tenor developers")
+    print(f"2. Logueate con Google o algo")
+    print(f"3. Crea una app cualquiera")
+    print(f"4. Copia la key y pegala aca")
+    print(f"{Colors.CYAN}========================={Colors.ENDC}\n")
 
 def configure_bot():
-    """Proceso de configuración principal"""
+    """el menu de config"""
     print_banner()
     
-    print(f"{Colors.YELLOW}Bienvenido al configurador del bot de economía.{Colors.ENDC}")
-    print(f"{Colors.YELLOW}Responde las siguientes preguntas para configurar tu bot.{Colors.ENDC}\n")
+    print(f"{Colors.YELLOW}Aca configuras todo lo del bot.{Colors.ENDC}")
+    print(f"{Colors.YELLOW}Si no sabes de donde sacar el token busca un tutorial en youtube xd{Colors.ENDC}\n")
     
-    # Advertencia importante sobre intents
-    print(f"{Colors.RED}╔════════════════════════════════════════════════════════════╗")
-    print(f"║                  {Colors.BOLD}⚠️  IMPORTANTE ⚠️{Colors.ENDC}{Colors.RED}                          ║")
-    print(f"╚════════════════════════════════════════════════════════════╝{Colors.ENDC}")
-    print(f"{Colors.YELLOW}ANTES de iniciar el bot, debes habilitar los Privileged Intents{Colors.ENDC}")
-    print(f"{Colors.YELLOW}en el portal de desarrolladores de Discord:{Colors.ENDC}\n")
-    print(f"  {Colors.CYAN}1. Ve a: {Colors.BOLD}https://discord.com/developers/applications/{Colors.ENDC}")
-    print(f"  {Colors.CYAN}2. Selecciona tu aplicación (bot){Colors.ENDC}")
-    print(f"  {Colors.CYAN}3. Ve a la sección 'Bot' en el menú lateral{Colors.ENDC}")
-    print(f"  {Colors.CYAN}4. Baja hasta 'Privileged Gateway Intents'{Colors.ENDC}")
-    print(f"  {Colors.CYAN}5. Activa estas 3 opciones:{Colors.ENDC}")
-    print(f"     {Colors.GREEN}✓ PRESENCE INTENT{Colors.ENDC}")
-    print(f"     {Colors.GREEN}✓ SERVER MEMBERS INTENT{Colors.ENDC}")
-    print(f"     {Colors.GREEN}✓ MESSAGE CONTENT INTENT {Colors.BOLD}(OBLIGATORIO){Colors.ENDC}")
-    print(f"  {Colors.CYAN}6. Guarda los cambios{Colors.ENDC}\n")
-    print(f"{Colors.RED}Sin estos permisos, el bot NO funcionará.{Colors.ENDC}\n")
+    # IMPORTANTE
+    print(f"{Colors.RED}!!! OJO !!!{Colors.ENDC}")
+    print(f"{Colors.YELLOW}Activa los Intents en el Discord Developer Portal (la parte de 'Bot'){Colors.ENDC}")
+    print(f"{Colors.YELLOW}Tienes que marcar las 3 cajitas de abajo o no va a leer los mensajes.{Colors.ENDC}\n")
     
-    input(f"{Colors.YELLOW}Presiona Enter cuando hayas habilitado los intents...{Colors.ENDC}")
+    input(f"{Colors.YELLOW}Presiona Enter cuando lo hayas hecho...{Colors.ENDC}")
     clear_screen()
     print_banner()
     
     config = {}
     
     # Token de Discord
-    print(f"\n{Colors.CYAN}═══ CONFIGURACIÓN BÁSICA ═══{Colors.ENDC}\n")
-    config['discord_token'] = get_input("1. Token de Discord Bot")
+    print(f"\n{Colors.CYAN}--- COSAS BASICAS ---{Colors.ENDC}\n")
+    config['discord_token'] = get_input("1. Token del Bot")
     
     if not config['discord_token']:
-        print(f"\n{Colors.RED}Error: El token de Discord es obligatorio{Colors.ENDC}")
-        input("\nPresiona Enter para salir...")
+        print(f"\n{Colors.RED}Sin token no hay bot bro{Colors.ENDC}")
+        input("\nEnter para salir...")
         return None
     
     # Token de Tenor
@@ -183,12 +166,13 @@ def save_config(config):
         f.write(env_content)
     
     # Crear bot_config.json
+    # Normalizar valores para evitar guardar `null` en JSON
     bot_config = {
         "modo_publico": config.get('modo_publico', False),
         "owner_role": config.get('owner_role'),
-        "admin_user_ids": config.get('admin_user_ids', []),
-        "allowed_servers": config.get('allowed_servers', []),
-        "command_channels": config.get('command_channels', {}),
+        "admin_user_ids": config.get('admin_user_ids') or [],
+        "allowed_servers": config.get('allowed_servers') or [],
+        "command_channels": config.get('command_channels') or {},
         "tenor_fallback_keys": config.get('tenor_keys', []) if config.get('tenor_keys') else None
     }
     
