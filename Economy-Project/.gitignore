@@ -2,30 +2,23 @@
 # GITIGNORE - Bot de Economía Discord
 # =====================================================
 
-# ===== ARCHIVOS SENSIBLES =====
-# Token y configuración privada
 .env
 .env.local
 *.env
 
-# Configuración del bot (puede contener IDs privados)
 config/bot_config.json
 
-# Base de datos con información de usuarios
 database/users.json
 database/shop_items.json
 database/transactions.json
 database/backups/*.json
 database/*.db
 
-# ===== PYTHON =====
-# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 
-# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -100,7 +93,7 @@ Icon
 .directory
 .Trash-*
 
-# ===== TEMPORALES =====
+
 # Archivos temporales
 *.tmp
 *.temp
@@ -113,7 +106,6 @@ Icon
 *.backup
 *.old
 
-# ===== TESTING =====
 # Testing
 .pytest_cache/
 .coverage
@@ -147,7 +139,6 @@ celerybeat.pid
 # mkdocs documentation
 /site
 
-# mypy
 .mypy_cache/
 .dmypy.json
 dmypy.json
@@ -155,14 +146,10 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# ===== MANTENER CARPETAS VACÍAS =====
-# Mantener estructura de carpetas pero ignorar contenido
 !database/.gitkeep
 !logs/.gitkeep
 !database/backups/.gitkeep
 
-# ===== EXCEPCIONES =====
-# Archivos que SÍ queremos en el repositorio
 !.env.example
 !database/.gitkeep
 !logs/.gitkeep
